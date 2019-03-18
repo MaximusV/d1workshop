@@ -1,0 +1,326 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Extra &#8212; Micropython on ESP8266 Workshop 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Advanced" href="advanced.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Micropython on ESP8266 Workshop 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="extra">
+<h1>Extra<a class="headerlink" href="#extra" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="servomechanisms">
+<h2>Servomechanisms<a class="headerlink" href="#servomechanisms" title="Permalink to this headline">¶</a></h2>
+<p>Time to actually physically move something. If you plan on building a robot,
+there are three main ways of moving things from the microcontroller:</p>
+<blockquote>
+<div><ul class="simple">
+<li>a servomechanism (servo for short),</li>
+<li>an H-bridge and a DC motor,</li>
+<li>a stepper or brushless motor with a driver.</li>
+</ul>
+</div></blockquote>
+<p>We are going to focus on the servo first, because I think this is the easiest
+and cheapest way. We are going to use a cheap “hobby” servo, the kind that is
+used in toys – it’s not particularly strong, but it’s enough for most use
+cases.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Don’t try to force the movement of the servo arms with your hand, you are
+risking breaking the delicate plastic gears inside.</p>
+</div>
+<p>A hobby servo has three wires: brown or black <code class="docutils literal notranslate"><span class="pre">gnd</span></code>, red or orange <code class="docutils literal notranslate"><span class="pre">vcc</span></code>,
+and white or yellow <code class="docutils literal notranslate"><span class="pre">signal</span></code>. The <code class="docutils literal notranslate"><span class="pre">gnd</span></code> should of course be connected to
+the <code class="docutils literal notranslate"><span class="pre">gnd</span></code> of our board. The <code class="docutils literal notranslate"><span class="pre">vcc</span></code> is the power source for the servo, and
+we are going to connect it to the <code class="docutils literal notranslate"><span class="pre">vin</span></code> pin of our board – this way it is
+connected directly to the USB port, and not powered through the board.</p>
+<a class="reference internal image-reference" href="_images/servo.png"><img alt="_images/servo.png" src="_images/servo.png" style="width: 512px;" /></a>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">Servos and motors usually require a lot of current, more then your board
+can supply, and often even more than than you can get from USB. Don’t
+connect them to the <code class="docutils literal notranslate"><span class="pre">3v3</span></code> pins of your board, and if you need two or
+more, power them from a battery (preferably rechargeable).</p>
+</div>
+<p>The third wire, <code class="docutils literal notranslate"><span class="pre">signal</span></code> tells the servo what position it should move to,
+using a 50Hz PWM signal. The center is at around 77, and the exact range varies
+with the servo model, but should be somewhere between 30 and 122, which
+corresponds to about 180° of movement. Note that if you send the servo a signal
+that is outside of the range, it will still obediently try to move there –
+hitting a mechanical stop and buzzing loudly.  If you leave it like this for
+longer, you can damage your servo, your board or your battery, so please be
+careful.</p>
+<p>So now we are ready to try and move it to the center position:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span><span class="p">,</span> <span class="n">PWM</span>
+<span class="n">servo</span> <span class="o">=</span> <span class="n">PWM</span><span class="p">(</span><span class="n">Pin</span><span class="p">(</span><span class="mi">14</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">duty</span><span class="o">=</span><span class="mi">77</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then we can see where the limits of its movement are:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">servo</span><span class="o">.</span><span class="n">duty</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+<span class="n">servo</span><span class="o">.</span><span class="n">duty</span><span class="p">(</span><span class="mi">122</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>There also exist “continuous rotation” servos, which don’t move to the
+specified position, but instead rotate with specified speed. Those are suitable
+for building simple wheeled robots. It’s possible to modify a normal servo into
+a continuous rotation servo.</p>
+</div>
+<div class="section" id="beepers">
+<h2>Beepers<a class="headerlink" href="#beepers" title="Permalink to this headline">¶</a></h2>
+<p>When I wrote that PWM has a frequency, did you immediately think about sound?
+Yes, electric signals can be similar to sound, and we can turn them into sound
+by using speakers. Or small piezoelectric beepers, like in our case.</p>
+<a class="reference internal image-reference" href="_images/beeper.png"><img alt="_images/beeper.png" src="_images/beeper.png" style="width: 512px;" /></a>
+<p>The piezoelectric speaker doesn’t use any external source of power – it will
+be powered directly from the GPIO pin – that’s why it can be pretty quiet.
+Still, let’s try it:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span><span class="p">,</span> <span class="n">PWM</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">beeper</span> <span class="o">=</span> <span class="n">PWM</span><span class="p">(</span><span class="n">Pin</span><span class="p">(</span><span class="mi">14</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="mi">440</span><span class="p">,</span> <span class="n">duty</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
+<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+<span class="n">beeper</span><span class="o">.</span><span class="n">deinit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>We can even play melodies! For instance, here’s the musical scale:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span><span class="p">,</span> <span class="n">PWM</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="n">tempo</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">tones</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;c&#39;</span><span class="p">:</span> <span class="mi">262</span><span class="p">,</span>
+    <span class="s1">&#39;d&#39;</span><span class="p">:</span> <span class="mi">294</span><span class="p">,</span>
+    <span class="s1">&#39;e&#39;</span><span class="p">:</span> <span class="mi">330</span><span class="p">,</span>
+    <span class="s1">&#39;f&#39;</span><span class="p">:</span> <span class="mi">349</span><span class="p">,</span>
+    <span class="s1">&#39;g&#39;</span><span class="p">:</span> <span class="mi">392</span><span class="p">,</span>
+    <span class="s1">&#39;a&#39;</span><span class="p">:</span> <span class="mi">440</span><span class="p">,</span>
+    <span class="s1">&#39;b&#39;</span><span class="p">:</span> <span class="mi">494</span><span class="p">,</span>
+    <span class="s1">&#39;C&#39;</span><span class="p">:</span> <span class="mi">523</span><span class="p">,</span>
+    <span class="s1">&#39; &#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">beeper</span> <span class="o">=</span> <span class="n">PWM</span><span class="p">(</span><span class="n">Pin</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="n">Pin</span><span class="o">.</span><span class="n">OUT</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="mi">440</span><span class="p">,</span> <span class="n">duty</span><span class="o">=</span><span class="mi">512</span><span class="p">)</span>
+<span class="n">melody</span> <span class="o">=</span> <span class="s1">&#39;cdefgabC&#39;</span>
+<span class="n">rhythm</span> <span class="o">=</span> <span class="p">[</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">tone</span><span class="p">,</span> <span class="n">length</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">melody</span><span class="p">,</span> <span class="n">rhythm</span><span class="p">):</span>
+    <span class="n">beeper</span><span class="o">.</span><span class="n">freq</span><span class="p">(</span><span class="n">tones</span><span class="p">[</span><span class="n">tone</span><span class="p">])</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">tempo</span><span class="o">/</span><span class="n">length</span><span class="p">)</span>
+<span class="n">beeper</span><span class="o">.</span><span class="n">deinit</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Unfortunately, the maximum frequency of PWM is currently 1000Hz, so you can’t
+play any notes higher than that.</p>
+<p>It’s possible to make the sounds louder by using a better speaker and possibly
+an audio amplifier.</p>
+</div>
+<div class="section" id="schematics">
+<h2>Schematics<a class="headerlink" href="#schematics" title="Permalink to this headline">¶</a></h2>
+<p>The pretty colorful pictures that we have been using so far are not very
+useful in practical projects. You can’t really draw them by hand, different
+components may look very similar, and it’s hard to see what is going on when
+there are a lot of connections. That’s why engineers prefer to use more
+symbolic representation of connection, a schematic.</p>
+<p>A schematic doesn’t care how the parts actually look like, or how their pins
+are arranged. Instead they use simple symbols. For instance, here’s a schematic
+of our experiment with the external LED:</p>
+<a class="reference internal image-reference" href="_images/blink_schem.png"><img alt="_images/blink_schem.png" src="_images/blink_schem.png" style="width: 512px;" /></a>
+<p>The resistor is symbolized by a zig-zag. The LED is marked by a diode symbol
+(a triangle with a bar), with additional two arrows showing that it’s a light
+emitting diode. The board itself doesn’t have a special symbol – instead it’s
+symbolized by a rectangle with the board’s name written in it.</p>
+<p>There is also a symbol for “ground” – the three horizontal lines. Since a lot
+of components need to be usually connected to the ground, instead of drawing
+all those wires, it’s easier to simply use that symbol.</p>
+<p>Here are some more symbols:</p>
+<a class="reference internal image-reference" href="_images/schematic.png"><img alt="_images/schematic.png" src="_images/schematic.png" style="width: 512px;" /></a>
+<p>It’s important to learn to read and draw electric schematics, because anything
+more advanced is going to use them, and you will also need them when asking for
+help on the Internet.</p>
+</div>
+<div class="section" id="neopixels">
+<h2>Neopixels<a class="headerlink" href="#neopixels" title="Permalink to this headline">¶</a></h2>
+<p>Those are actually WS2812B addressable RGB LEDs, but they are commonly known
+as “neopixels”. You can control individually the brightness and color of each
+of the LEDs in a string (or matrix, or ring). The connection is simple:</p>
+<a class="reference internal image-reference" href="_images/neopixel.png"><img alt="_images/neopixel.png" src="_images/neopixel.png" style="width: 512px;" /></a>
+<p>And the code for driving them is not very complex either, because the library
+for generating the signal is included in Micropython:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span>
+<span class="kn">import</span> <span class="nn">neopixel</span>
+<span class="n">pixels</span> <span class="o">=</span> <span class="n">neopixel</span><span class="o">.</span><span class="n">NeoPixel</span><span class="p">(</span><span class="n">Pin</span><span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="n">Pin</span><span class="o">.</span><span class="n">OUT</span><span class="p">),</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">pixels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mh">0xff</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">)</span>
+<span class="n">pixels</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Where <code class="docutils literal notranslate"><span class="pre">8</span></code> is the number of LEDs in a chain.  You can create all sorts of
+animations, rainbows and pretty effects with those.</p>
+</div>
+<div class="section" id="temperature-and-humidity">
+<h2>Temperature and Humidity<a class="headerlink" href="#temperature-and-humidity" title="Permalink to this headline">¶</a></h2>
+<p>The DHT11 and DHT22 sensors are quite popular for all sorts of weather
+stations. They use a single-wire protocol for communication. MicroPython on
+ESP8266 has that covered:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span>
+<span class="kn">import</span> <span class="nn">dht</span>
+<span class="n">sensor</span> <span class="o">=</span> <span class="n">dht</span><span class="o">.</span><span class="n">DHT11</span><span class="p">(</span><span class="n">Pin</span><span class="p">(</span><span class="mi">14</span><span class="p">))</span>
+<span class="n">sensor</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sensor</span><span class="o">.</span><span class="n">temperature</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sensor</span><span class="o">.</span><span class="n">humidity</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>The connections are simple:</p>
+<a class="reference internal image-reference" href="_images/dht11.png"><img alt="_images/dht11.png" src="_images/dht11.png" style="width: 512px;" /></a>
+</div>
+<div class="section" id="led-matrix-and-7-segment-displays">
+<h2>LED Matrix and 7-segment Displays<a class="headerlink" href="#led-matrix-and-7-segment-displays" title="Permalink to this headline">¶</a></h2>
+<p>Adafruit sells a lot of “backpacks” with 7- or 14-segment displays or LED
+matrices, that we can control easily over I²C. They use a HT16K33 chip, so that
+we don’t have to switch on and off the individual LEDs – we just tell the chip
+what to do, and it takes care of the rest.</p>
+<p>The schematic for connecting any I²C device will be almost always the same:</p>
+<a class="reference internal image-reference" href="_images/matrix.png"><img alt="_images/matrix.png" src="_images/matrix.png" style="width: 512px;" /></a>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The two resistors on the schematic are needed for the protocol to work
+reliably with longer wires. For our experiments, it’s enough to rely on
+the pull-up resistors that are built into the board we are using.</p>
+</div>
+<p>The communication with the backpack is relatively simple, but I wrote two
+libraries for making it more convenient. For the matrix:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">I2C</span><span class="p">,</span> <span class="n">Pin</span>
+<span class="kn">from</span> <span class="nn">ht16k33_matrix</span> <span class="k">import</span> <span class="n">Matrix8x8</span>
+<span class="n">i2c</span> <span class="o">=</span> <span class="n">I2C</span><span class="p">(</span><span class="n">sda</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">scl</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">display</span> <span class="o">=</span> <span class="n">Matrix8x8</span><span class="p">(</span><span class="n">i2c</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">brightness</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">blink_rate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">pixel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">pixel</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">pixel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">pixel</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>and for the 7- and 14-segment displays:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">I2C</span><span class="p">,</span> <span class="n">Pin</span>
+<span class="kn">from</span> <span class="nn">ht16k33_seg</span> <span class="k">import</span> <span class="n">Seg7x4</span>
+<span class="n">i2c</span> <span class="o">=</span> <span class="n">I2C</span><span class="p">(</span><span class="n">sda</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">scl</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">display</span> <span class="o">=</span> <span class="n">Seg7x4</span><span class="p">(</span><span class="n">i2c</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="s2">&quot;8.0:0.8&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="tft-lcd-display">
+<h2>TFT LCD Display<a class="headerlink" href="#tft-lcd-display" title="Permalink to this headline">¶</a></h2>
+<p>The I²C protocol is nice and simple, but not very fast, so it’s only good when
+you have a few pixels to switch. With larger displays, it’s much better to use
+SPI, which can be much faster.</p>
+<p>Here is an example on how to connect an ILI9340 display:</p>
+<a class="reference internal image-reference" href="_images/tft.png"><img alt="_images/tft.png" src="_images/tft.png" style="width: 512px;" /></a>
+<p>And here is a simple library that lets you draw on that display:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span><span class="p">,</span> <span class="n">SPI</span>
+<span class="kn">import</span> <span class="nn">ili9341</span>
+<span class="n">spi</span> <span class="o">=</span> <span class="n">SPI</span><span class="p">(</span><span class="n">miso</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span> <span class="n">mosi</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">13</span><span class="p">),</span> <span class="n">sck</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">14</span><span class="p">))</span>
+<span class="n">display</span> <span class="o">=</span> <span class="n">ili9341</span><span class="o">.</span><span class="n">ILI9341</span><span class="p">(</span><span class="n">spi</span><span class="p">,</span> <span class="n">cs</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">dc</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">rst</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
+<span class="n">display</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="n">ili9341</span><span class="o">.</span><span class="n">color565</span><span class="p">(</span><span class="mh">0xff</span><span class="p">,</span> <span class="mh">0x11</span><span class="p">,</span> <span class="mh">0x22</span><span class="p">))</span>
+<span class="n">display</span><span class="o">.</span><span class="n">pixel</span><span class="p">(</span><span class="mi">120</span><span class="p">,</span> <span class="mi">160</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>As you can see, the display is still quite slow – there are a lot of bytes to
+send, and we are using software SPI implementation here. The speed will greatly
+improve when Micropython adds hardware SPI support.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Extra</a><ul>
+<li><a class="reference internal" href="#servomechanisms">Servomechanisms</a></li>
+<li><a class="reference internal" href="#beepers">Beepers</a></li>
+<li><a class="reference internal" href="#schematics">Schematics</a></li>
+<li><a class="reference internal" href="#neopixels">Neopixels</a></li>
+<li><a class="reference internal" href="#temperature-and-humidity">Temperature and Humidity</a></li>
+<li><a class="reference internal" href="#led-matrix-and-7-segment-displays">LED Matrix and 7-segment Displays</a></li>
+<li><a class="reference internal" href="#tft-lcd-display">TFT LCD Display</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="advanced.html"
+                        title="previous chapter">Advanced</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/extra.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Micropython on ESP8266 Workshop 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Radomir Dopieralski.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>

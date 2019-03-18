@@ -1,0 +1,293 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Shields &#8212; Micropython on ESP8266 Workshop 1.0 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Advanced" href="advanced.html" />
+    <link rel="prev" title="Basics" href="basics.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="basics.html" title="Basics"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Micropython on ESP8266 Workshop 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="shields">
+<h1>Shields<a class="headerlink" href="#shields" title="Permalink to this headline">¶</a></h1>
+<p>There is a number of ready to use “shields” – add-on boards – for the WeMos
+D1 Mini, containing useful components together with all the necessary
+connections and possible additional components. All you have to do is plug such
+a “shield” on top or bottom of the WeMos D1 Mini board, and load the right code
+to use the components on it.</p>
+<div class="section" id="button">
+<h2>Button<a class="headerlink" href="#button" title="Permalink to this headline">¶</a></h2>
+<p>This is a very basic shield that contains a single pushbutton. The button is
+connected to pin <code class="docutils literal notranslate"><span class="pre">gpio0</span></code> and to <code class="docutils literal notranslate"><span class="pre">gnd</span></code>, so you can read its state with this
+code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span>
+<span class="n">button</span> <span class="o">=</span> <span class="n">Pin</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">button</span><span class="o">.</span><span class="n">value</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The button is not pressed.&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The button is pressed.&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Of course everything we learned about buttons and debouncing applies here as
+well.</p>
+</div>
+<div class="section" id="dht-and-dht-pro">
+<h2>DHT and DHT Pro<a class="headerlink" href="#dht-and-dht-pro" title="Permalink to this headline">¶</a></h2>
+<p>Those two shield have temperature and humidity sensors on them. The first one,
+DHT, has DHT11 sensor, the second one, DHT Pro, has DHT22, which is more
+accurate and has better precision.</p>
+<p>In both cases the sensors are available on the pin <code class="docutils literal notranslate"><span class="pre">gpio2</span></code>, and you can
+access them with code like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span>
+<span class="kn">import</span> <span class="nn">dht</span>
+<span class="n">sensor</span> <span class="o">=</span> <span class="n">dht</span><span class="o">.</span><span class="n">DHT11</span><span class="p">(</span><span class="n">Pin</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">sensor</span><span class="o">.</span><span class="n">measure</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sensor</span><span class="o">.</span><span class="n">temperature</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sensor</span><span class="o">.</span><span class="n">humidity</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>(Use <code class="docutils literal notranslate"><span class="pre">DHT22</span></code> class for the DHT Pro shield.)</p>
+<p>It is recommended to use this shield with the “dual base”, so that the
+temperature sensor is not right above or below the ESP8266 module, which tends
+to become warm during work and can affect temperature measurements.</p>
+</div>
+<div class="section" id="neopixel">
+<h2>Neopixel<a class="headerlink" href="#neopixel" title="Permalink to this headline">¶</a></h2>
+<p>That shield has a single addressable RGB LED on it, connected to pin <code class="docutils literal notranslate"><span class="pre">gpio4</span></code>.
+Unfortunately, that means that this shield conflicts with any other shield that
+uses the I²C protocol, such as the OLED shield or the motor shield. You can use
+it with code lik this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span>
+<span class="kn">import</span> <span class="nn">neopixel</span>
+<span class="n">pixels</span> <span class="o">=</span> <span class="n">neopixel</span><span class="o">.</span><span class="n">NeoPixel</span><span class="p">(</span><span class="n">Pin</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">Pin</span><span class="o">.</span><span class="n">OUT</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">pixels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mh">0xff</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mh">0x22</span><span class="p">)</span>
+<span class="n">pixels</span><span class="o">.</span><span class="n">write</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="relay">
+<h2>Relay<a class="headerlink" href="#relay" title="Permalink to this headline">¶</a></h2>
+<p>This shield contains a relay switch, together with a transistor and a couple of
+other components required to reliably connect it to the board. It uses pin
+<code class="docutils literal notranslate"><span class="pre">gpio5</span></code>, which unfortunately makes it incompatible with any other shields
+using the I²C protocol, such as the OLED shield or the motor shield. You can
+control the relay with the following code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span>
+<span class="n">relay</span> <span class="o">=</span> <span class="n">Pin</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">Pin</span><span class="o">.</span><span class="n">OUT</span><span class="p">)</span>
+<span class="n">relay</span><span class="o">.</span><span class="n">low</span><span class="p">()</span> <span class="c1"># Switch off</span>
+<span class="n">relay</span><span class="o">.</span><span class="n">high</span><span class="p">()</span> <span class="c1"># Switch on</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="oled">
+<h2>OLED<a class="headerlink" href="#oled" title="Permalink to this headline">¶</a></h2>
+<p>A small, 64×48 monochrome display. It uses pins <code class="docutils literal notranslate"><span class="pre">gpio4</span></code> and <code class="docutils literal notranslate"><span class="pre">gpio5</span></code> to talk
+with the board with the I²C protocol. It will conflict with any other shield
+that uses those pins, but doesn’t use I²C, like the neopixel shield or the
+relay shield. It can coexist with other shields that use I²C, like the motor
+shield.</p>
+<p>Up to two such displays can be connected at the same time, provided they have
+different addresses set using the jumper on the back.</p>
+<p>You can control the display using the <code class="docutils literal notranslate"><span class="pre">ssd1306</span></code> library:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">ssd1306</span>
+<span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">I2C</span><span class="p">,</span> <span class="n">Pin</span>
+<span class="n">i2c</span> <span class="o">=</span> <span class="n">I2C</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">Pin</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">Pin</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">display</span> <span class="o">=</span> <span class="n">ssd1306</span><span class="o">.</span><span class="n">SSD1306_I2C</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="n">i2c</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;Hello&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;world!&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">pixel</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="motor">
+<h2>Motor<a class="headerlink" href="#motor" title="Permalink to this headline">¶</a></h2>
+<p>The motor shield contains a H-bridge) and a PWM chip, and it’s able to drive up
+to two small DC motors. You can control it using I²C on pins <code class="docutils literal notranslate"><span class="pre">gpio4</span></code> and
+<code class="docutils literal notranslate"><span class="pre">gpio5</span></code>. It will conflict with any shields that use those pins but don’t use
+I²C, such as the relay shield and the neopixel shield. It will work well
+together with other shields using I²C.</p>
+<p>Up to four such shields can be connected at the same time, provided they have
+different addresses selected using the jumpers at their backs.</p>
+<p>In order to use this shield, use the <code class="docutils literal notranslate"><span class="pre">d1motor</span></code> library:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">d1motor</span>
+<span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">I2C</span><span class="p">,</span> <span class="n">Pin</span>
+<span class="n">i2c</span> <span class="o">=</span> <span class="n">I2C</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">Pin</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">Pin</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">freq</span><span class="o">=</span><span class="mi">10000</span><span class="p">)</span>
+<span class="n">m0</span> <span class="o">=</span> <span class="n">d1motor</span><span class="o">.</span><span class="n">Motor</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">i2c</span><span class="p">)</span>
+<span class="n">m1</span> <span class="o">=</span> <span class="n">d1motor</span><span class="o">.</span><span class="n">Motor</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">i2c</span><span class="p">)</span>
+<span class="n">m0</span><span class="o">.</span><span class="n">speed</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="micro-sd">
+<h2>Micro SD<a class="headerlink" href="#micro-sd" title="Permalink to this headline">¶</a></h2>
+<p>This shield lets you connect a micro SD card to your board. It connects to pins
+<code class="docutils literal notranslate"><span class="pre">gpio12</span></code>, <code class="docutils literal notranslate"><span class="pre">gpio13</span></code>, <code class="docutils literal notranslate"><span class="pre">gpio14</span></code> and <code class="docutils literal notranslate"><span class="pre">gpio15</span></code> and uses SPI protocol. It can
+be used together with other devices using the SPI protocol, as long as they
+don’t use pin <code class="docutils literal notranslate"><span class="pre">gpio15</span></code> as CS.</p>
+<p>You can mount an SD card in place of the internal filesystem using the
+following code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">SPI</span><span class="p">,</span> <span class="n">Pin</span>
+<span class="kn">import</span> <span class="nn">sdcard</span>
+<span class="n">sd</span> <span class="o">=</span> <span class="n">sdcard</span><span class="o">.</span><span class="n">SDCard</span><span class="p">(</span><span class="n">SPI</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">Pin</span><span class="p">(</span><span class="mi">15</span><span class="p">))</span>
+<span class="n">os</span><span class="o">.</span><span class="n">umount</span><span class="p">()</span>
+<span class="n">os</span><span class="o">.</span><span class="n">VfsFat</span><span class="p">(</span><span class="n">sd</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Afterwards you can use <code class="docutils literal notranslate"><span class="pre">os.listdir()</span></code>, <code class="docutils literal notranslate"><span class="pre">open()</span></code> and all other normal file
+functions to manipulate the files on the SD card. In order to mount the
+internal filesystem back, use the following code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">flashbdev</span>
+<span class="n">os</span><span class="o">.</span><span class="n">umount</span><span class="p">()</span>
+<span class="n">os</span><span class="o">.</span><span class="n">VfsFat</span><span class="p">(</span><span class="n">flashbdev</span><span class="o">.</span><span class="n">bdev</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="battery">
+<h2>Battery<a class="headerlink" href="#battery" title="Permalink to this headline">¶</a></h2>
+<p>This shield lets you power your board from a single-cell LiPo battery. It
+connects to the <code class="docutils literal notranslate"><span class="pre">5V</span></code> pin, and doesn’t require any communication from your
+board to work. You can simply plug it in and use it.</p>
+</div>
+<div class="section" id="servo-custom">
+<h2>Servo (Custom)<a class="headerlink" href="#servo-custom" title="Permalink to this headline">¶</a></h2>
+<p>There is an experimental 18-channel servo shield. It uses the I²C protocol on
+pins <code class="docutils literal notranslate"><span class="pre">gpio4</span></code> and <code class="docutils literal notranslate"><span class="pre">gpio5</span></code> and is compatible with other I²C shields.</p>
+<p>In order to power the servos, you need to either provide external power to the
+pin marked with <code class="docutils literal notranslate"><span class="pre">+</span></code> next to the <code class="docutils literal notranslate"><span class="pre">5V</span></code> pin, or connect it with the <code class="docutils literal notranslate"><span class="pre">5V</span></code> pin
+to make the servos share power with the board.</p>
+<p>You can set the servo positions using the following code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">servo</span> <span class="k">import</span> <span class="n">Servos</span>
+<span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">I2C</span><span class="p">,</span> <span class="n">Pin</span>
+<span class="n">i2c</span> <span class="o">=</span> <span class="n">I2C</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">Pin</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">Pin</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">servos</span> <span class="o">=</span> <span class="n">Servos</span><span class="p">(</span><span class="n">i2c</span><span class="p">)</span>
+<span class="n">servos</span><span class="o">.</span><span class="n">position</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">degrees</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="tft-screen-custom">
+<h2>TFT Screen (Custom)<a class="headerlink" href="#tft-screen-custom" title="Permalink to this headline">¶</a></h2>
+<p>There is an experimental breakout board for the ST7735 TFT screen. It uses the
+SPI interface on pins <code class="docutils literal notranslate"><span class="pre">gpio12</span></code>, <code class="docutils literal notranslate"><span class="pre">gpio13</span></code>, <code class="docutils literal notranslate"><span class="pre">gpio14</span></code>, and <code class="docutils literal notranslate"><span class="pre">gpio15</span></code>.</p>
+<p>You can use it with the following example code:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">machine</span> <span class="k">import</span> <span class="n">Pin</span><span class="p">,</span> <span class="n">SPI</span>
+<span class="kn">import</span> <span class="nn">st7735</span>
+
+<span class="n">display</span> <span class="o">=</span> <span class="n">st7735</span><span class="o">.</span><span class="n">ST7735</span><span class="p">(</span><span class="n">SPI</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">dc</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span> <span class="n">cs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rst</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">15</span><span class="p">))</span>
+<span class="n">display</span><span class="o">.</span><span class="n">fill</span><span class="p">(</span><span class="mh">0x7521</span><span class="p">)</span>
+<span class="n">display</span><span class="o">.</span><span class="n">pixel</span><span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If you have a display with a red tab, you need to use a different initialization:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">display</span> <span class="o">=</span> <span class="n">st7735</span><span class="o">.</span><span class="n">ST7735R</span><span class="p">(</span><span class="n">SPI</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">baudrate</span><span class="o">=</span><span class="mi">40000000</span><span class="p">),</span> <span class="n">dc</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">12</span><span class="p">),</span> <span class="n">cs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">rst</span><span class="o">=</span><span class="n">Pin</span><span class="p">(</span><span class="mi">15</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Shields</a><ul>
+<li><a class="reference internal" href="#button">Button</a></li>
+<li><a class="reference internal" href="#dht-and-dht-pro">DHT and DHT Pro</a></li>
+<li><a class="reference internal" href="#neopixel">Neopixel</a></li>
+<li><a class="reference internal" href="#relay">Relay</a></li>
+<li><a class="reference internal" href="#oled">OLED</a></li>
+<li><a class="reference internal" href="#motor">Motor</a></li>
+<li><a class="reference internal" href="#micro-sd">Micro SD</a></li>
+<li><a class="reference internal" href="#battery">Battery</a></li>
+<li><a class="reference internal" href="#servo-custom">Servo (Custom)</a></li>
+<li><a class="reference internal" href="#tft-screen-custom">TFT Screen (Custom)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="basics.html"
+                        title="previous chapter">Basics</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="advanced.html"
+                        title="next chapter">Advanced</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/shields.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="basics.html" title="Basics"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">Micropython on ESP8266 Workshop 1.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Radomir Dopieralski.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.7.2.
+    </div>
+  </body>
+</html>
