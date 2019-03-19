@@ -21,14 +21,14 @@ To participate in the workshop, you will need the following:
 
 In addition, at the workshop, you will receive:
   * WeMos D1 Mini development board with ESP8266 on it,
-  * Red LED,
-  * 100Ω resistor,
-  * SG90 microservo,
-  * Female-female and Male-female dupont cables,
-  * Piezoelectric speaker.
+  * WeMos OLED shield,
+  * WeMos SHT30 shield,
+  * Blue LED,
+  * Push button,
+  * LDR light sensor (sharing is caring)
 
 The firmware that is flashed on the boards is also available at
-https://bitbucket.org/thesheep/d1workshop/downloads/firmware-combined.bin
+https://github.com/MaximusV/d1workshop/raw/master/libs/firmware-combined.bin
 
 
 Development Board
@@ -49,7 +49,7 @@ to use.
     :width: 512px
 
 
-It has a micro-USB socket for connecting to the computer. On the side is 
+It has a micro-USB socket for connecting to the computer. On the side is
 a button for resetting the board. Along the sides of the board are two rows
 of pins, to which we will be connecting cables.
 
