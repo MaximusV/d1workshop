@@ -1,6 +1,11 @@
 Extra
 *****
 
+.. warning::
+    The following content is out of scope for this workshop but is included for
+    reference. It's worth having a read over to understand how other hardware
+    can be used.
+
 Servomechanisms
 ===============
 

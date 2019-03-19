@@ -3,13 +3,15 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to this Introduction to Micropython on ESP8266 Workshop!
-================================================================
+Welcome to this Introduction to Micropython Workshop at Pycon Limerick!
+=======================================================================
 
-This is a fork of `Radomir Dopieralski's Micropython workshop
-<https://bitbucket.org/thesheep/d1workshop/overview>`_ shared under an
-`Attribution-ShareAlike license <https://creativecommons.org/licenses/by-sa/4.0/>`_.
-The main adaptations made were to tailor the content to the hardware available.
+.. note::
+    This is a fork of `Radomir Dopieralski's Micropython workshop
+    <https://bitbucket.org/thesheep/d1workshop/overview>`_ shared under an
+    `Attribution-ShareAlike license <https://creativecommons.org/licenses/by-sa/4.0/>`_.
+    The main adaptations were to reorganise the content around the specific
+    hardware available in this workshop session.
 
 Contents:
 
@@ -18,8 +20,8 @@ Contents:
 
    setup.rst
    basics.rst
-   shields.rst
    advanced.rst
+   shields.rst
    extra.rst
 
 

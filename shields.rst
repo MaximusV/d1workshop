@@ -7,6 +7,10 @@ connections and possible additional components. All you have to do is plug such
 a "shield" on top or bottom of the WeMos D1 Mini board, and load the right code
 to use the components on it.
 
+.. warning::
+    These shields are not provided as part of this workshop but are included
+    here for reference.
+
 
 Button
 ======
@@ -78,31 +82,6 @@ control the relay with the following code::
     relay = Pin(5, Pin.OUT)
     relay.low() # Switch off
     relay.high() # Switch on
-
-
-OLED
-====
-
-A small, 64×48 monochrome display. It uses pins ``gpio4`` and ``gpio5`` to talk
-with the board with the I²C protocol. It will conflict with any other shield
-that uses those pins, but doesn't use I²C, like the neopixel shield or the
-relay shield. It can coexist with other shields that use I²C, like the motor
-shield.
-
-Up to two such displays can be connected at the same time, provided they have
-different addresses set using the jumper on the back.
-
-You can control the display using the ``ssd1306`` library::
-
-    import ssd1306
-    from machine import I2C, Pin
-    i2c = I2C(-1, Pin(5), Pin(4))
-    display = ssd1306.SSD1306_I2C(64, 48, i2c)
-    display.fill(0)
-    display.text("Hello", 0, 0)
-    display.text("world!", 0, 8)
-    display.pixel(20, 20, 1)
-    display.show()
 
 
 Motor
