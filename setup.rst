@@ -114,13 +114,20 @@ Linux and MacOS
 
 Simply open a terminal and run the following commands. On Linux::
 
-    screen /dev/ttyUSB0 115200
+    sudo screen /dev/ttyUSB0 115200
 
 On MacOS::
 
     screen /dev/tty.SLAB_USBtoUART 115200
 
-To exit screen, press ctrl+A and then capital K.
+On Mac you might find the name is something other than '.SLAB_USBtoUART' so just
+disconnect the board, do `ls /dev/tty*`, reconnect the board and `ls` again to
+spot the difference.
+
+You should get a blank screen and if you hit enter a few times, you should see
+the usual python REPL prompt '>>>'. You might see some gibberish characters or
+get a SyntaxError when you first connect, that is just the initial serial
+connection. To exit screen, press ctrl+A and then capital K.
 
 
 Windows

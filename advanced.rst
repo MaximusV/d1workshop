@@ -1,35 +1,6 @@
 Advanced
 ********
 
-
-Analog to Digital Converter
-===========================
-
-Our board has only one "analog" pin, ``A0``. That pin is connected to an ADC,
-or "analog to digital converter" -- basically an electronic voltmeter, which
-can tell you what voltage is on the pin. The one we have can only measure from
-0 to 1V, and would be damaged if it got more than 1V, so we have to be careful.
-
-We will connect a photo-resistor to it. It's a special kind of a resistor that
-changes its resistance depending on how much light shines on it. But to make
-this work, we will need a second, fixed, resistor to make a "volatge divider".
-This way the voltage will change depending on the resistance of our
-photo-resistor.
-
-.. image:: ./images/analog.png
-
-Now, we will just read the values in our program, and print them in a loop::
-
-    from machine import ADC
-    adc = ADC(0)
-    while True:
-        print(adc.read())
-
-You should see a column of numbers changing depending on how much light the
-photo-resistor has. Try to cover it or point it toward a window or lamp. The
-values are from 0 for 0V, to 1024 for 1V. Ours will be somewhere in between.
-
-
 Communication Protocols
 =======================
 
@@ -88,3 +59,167 @@ You can control the display using the ``ssd1306`` library::
     display.text("world!", 0, 8)
     display.pixel(20, 20, 1)
     display.show()
+
+
+
+Network
+=======
+
+The ESP8266 has wireless networking support. It can act as a WiFi access point
+to which you can connect, and it can also connect to the Internet.
+
+To configure it as an access point, run code like this (use your own name and password)::
+
+    import network
+    ap = network.WLAN(network.AP_IF)
+    ap.active(True)
+    ap.config(essid="network-name", authmode=network.AUTH_WPA_WPA2_PSK, password="abcdabcdabcd")
+
+To scan for available networks (and also get additional information about their
+signal strength and details), use::
+
+    import network
+    sta = network.WLAN(network.STA_IF)
+    sta.active(True)
+    print(sta.scan())
+
+To connect to an existing network, use::
+
+    import network
+    sta = network.WLAN(network.STA_IF)
+    sta.active(True)
+    # Don't call this with a non-existent network or it gets a bit upset..
+    # sta.connect("network-name", "password")
+
+Once the board connects to a network, it will remember it and reconnect every
+time. To get details about connection, use::
+
+    sta.ifconfig()
+    sta.status()
+    sta.isconnected()
+
+
+WebREPL
+=======
+
+The command console in which you are typing all the code is called "REPL" --
+an acronym of "read-evaluate-print-loop". It works over a serial connection
+over USB. However, once you have your board connected to network, you can
+use the command console in your browser, over network. That is called WebREPL.
+
+First, you will need to download the web page for the WebREPL to your computer.
+Get the file from https://github.com/micropython/webrepl/archive/master.zip and
+unpack it somewhere on your computer, then click on the ``webrepl.html`` file
+to open it in the browser.
+
+In order to connect to your board, you have to know its address. If the board
+works in access point mode, it uses the default address. If it's connected to
+WiFi, you can check it with this code::
+
+    import network
+    sta = network.WLAN(network.STA_IF)
+    print(sta.ifconfig())
+
+You will see something like ``XXX.XXX.XXX.XXX`` -- that's the IP address. Enter
+it in the WebREPL's address box at the top like this
+``ws://XXX.XXX.XXX.XXX:8266/``.
+
+To connect to your board, you first have to start the server on it. You do it
+with this code::
+
+    import webrepl
+    webrepl.start()
+
+Now you can go back to the browser and click "connect".  On the first
+connection, you will be asked to setup a password -- later you will use that
+password to connect to your board.
+
+
+Filesystem
+==========
+
+Writing in the console is all fine for experimenting, but when you actually
+build something, you want the code to stay on the board, so that you don't have
+to connect to it and type the code every time. For that purpose, there is a
+file storage on your board, where you can put your code and store data.
+
+You can see the list of files in that storage with this code::
+
+    import os
+    print(os.listdir())
+
+You should see something like ``['boot.py']`` -- that's a list with just one
+file name in it. ``boot.py`` and later ``main.py`` are two special files that
+are executed when the board starts. ``boot.py`` is for configuration, and you
+can put your own code in ``main.py``.
+
+You can create, write to and read from files like you would with normal Python::
+
+    with open("myfile.txt", "w") as f:
+        f.write("Hello world!")
+    print(os.listdir())
+    with open("myfile.txt", "r") as f:
+        print(f.read())
+
+Please note that since the board doesn't have much memory, you can't put large
+files on it.
+
+
+Uploading Files
+===============
+
+You can use the WebREPL to upload files to the board from your computer. To do
+that, you need to open a terminal in the directory where you unpacked the
+WebREPL files, and run the command:
+
+.. code-block:: bash
+
+    python webrepl_cli.py yourfile.xxx XXX.XXX.XXX.XXX:
+
+Where ``yourfile.xxx`` is the file you want to send, and ``XXX.XXX.XXX.XXX`` is
+the address of your board.
+
+.. note::
+    You have to have Python installed on your computer for this to work.
+
+This requires you to setup a network connection on your board first. However,
+you can also upload files to your board using the same serial connection that
+you use for the interactive console. You just need to install a small utility
+program::
+
+    pip install adafruit-ampy
+
+And then you can use it to copy files to your board::
+
+    ampy --port=/dev/ttyUSB0 put yourfile.xxx
+
+.. warning::
+    The serial connection can be only used by a single program at a time.
+    Make sure that your console is discobbected while you use ampy, otherwise
+    you may get a cryptic error about it not having the access rights.
+
+
+HTTP Requests
+=============
+
+Once you are connected to network, you can talk to servers and interact with
+web services. The easiest way is to just do a HTTP request -- what your web
+browser does to get the content of web pages::
+
+    import urequests
+    r = urequests.get("http://duckduckgo.com/?q=micropython&format=json").json()
+    print(r)
+    print(r['AbstractText'])
+
+You can use that to get information from websites, such as weather forecasts::
+
+    import json
+    import urequests
+    r = urequests.get("http://api.openweathermap.org/data/2.5/weather?q=Zurich&appid=XXX").json()
+    print(r["weather"][0]["description"])
+    print(r["main"]["temp"] - 273.15)
+
+It's also possible to make more advanced requests, adding special headers to
+them, changing the HTTP method and so on. However, keep in mind that our board
+has very little memory for storing the answer, and you can easily get a
+``MemoryError``.
