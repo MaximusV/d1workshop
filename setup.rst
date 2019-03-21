@@ -31,6 +31,28 @@ The firmware that is flashed on the boards is also available at
 https://github.com/MaximusV/d1workshop/raw/master/libs/firmware-combined.bin
 
 
+Notes on Handling
+=================
+The board can be disconnected and reconnected at any time, there is no power
+off or shut down command you need to issue first. This is typical of
+microcontrollers and embedded devices in general, they have to operate in
+conditions where power may be unreliable and need to be able to handle sudden
+restarts.
+
+**Always disconnect the board from power before adding or removing the shields or
+components**. Be careful to align the pins correctly, use the RST pin on top
+left for reference. Gently rock the shield back and forth while pulling upwards
+to remove it, try not to bend the pins. Sometimes the pins won't fully insert
+on some shields or boards so don't try to force it flush.
+
+Note that the pins are exposed on the bottom of the board so don't let that
+touch any metal or water as it might short circuit the pins. When plugging in
+the components double check you're connecting the right pins, if in doubt ask
+somebody to check for you. All that aside, don't worry too much, these devices
+are fairly robust and worst case they are cheap replaceable components.
+Accidents happen and that's ok!
+
+
 Development Board
 =================
 
