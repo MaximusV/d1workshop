@@ -263,3 +263,28 @@ And here is a simple library that lets you draw on that display::
 As you can see, the display is still quite slow -- there are a lot of bytes to
 send, and we are using software SPI implementation here. The speed will greatly
 improve when Micropython adds hardware SPI support.
+
+
+HTTP Requests
+=============
+
+Once you are connected to network, you can talk to servers and interact with
+web services. The easiest way is to just do a HTTP request -- what your web
+browser does to get the content of web pages::
+
+    import urequests
+    r = urequests.get("http://harsh-enough.com")
+    print(r)
+
+You can use that to get information from websites, such as weather forecasts::
+
+    import json
+    import urequests
+    r = urequests.get("http://api.openweathermap.org/data/2.5/weather?q=Limerick&appid=XXX").json()
+    print(r["weather"][0]["description"])
+    print(r["main"]["temp"] - 273.15)
+
+It's also possible to make more advanced requests, adding special headers to
+them, changing the HTTP method and so on. However, keep in mind that our board
+has very little memory for storing the answer, and you can easily get a
+``MemoryError``.

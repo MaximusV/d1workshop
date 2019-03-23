@@ -196,32 +196,6 @@ And then you can use it to copy files to your board::
     Make sure that your console is discobbected while you use ampy, otherwise
     you may get a cryptic error about it not having the access rights.
 
-
-HTTP Requests
-=============
-
-Once you are connected to network, you can talk to servers and interact with
-web services. The easiest way is to just do a HTTP request -- what your web
-browser does to get the content of web pages::
-
-    import urequests
-    r = urequests.get("http://harsh-enough.com")
-    print(r)
-
-You can use that to get information from websites, such as weather forecasts::
-
-    import json
-    import urequests
-    r = urequests.get("http://api.openweathermap.org/data/2.5/weather?q=Limerick&appid=XXX").json()
-    print(r["weather"][0]["description"])
-    print(r["main"]["temp"] - 273.15)
-
-It's also possible to make more advanced requests, adding special headers to
-them, changing the HTTP method and so on. However, keep in mind that our board
-has very little memory for storing the answer, and you can easily get a
-``MemoryError``.
-
-
 OLED Shield Buttons
 ===================
 The OLED shield has two buttons at the bottom which we can use to interact with
