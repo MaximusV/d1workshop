@@ -233,14 +233,18 @@ a driver to interact with the buttons.
 Let's upload the driver as a file through the WebREPL. Copy the contents of the
 file from https://github.com/MaximusV/d1workshop/raw/master/libs/i2c_button.py
 into a file locally and save it. Upload the file through the WebREPL as described
-earlier. Then you should be able to use the driver liekke so::
+earlier. Then you should be able to use the driver like so::
 
-    from i2c_button import I2C_BUTTON
+    from time import sleep
     from machine import Pin, I2C
+    from i2c_button import I2C_BUTTON
 
     i2c = I2C(-1, Pin(5), Pin(4))
     buttons = I2C_BUTTON(i2c)
     buttons.get()
 
-    print("A:" + buttons.key[buttons.BUTTON_A])
-    print("B:" + buttons.key[buttons.BUTTON_B])
+    while True:
+        sleep(0.5)
+        buttons.get()
+        print("A:" + buttons.key[buttons.BUTTON_A])
+        print("B:" + buttons.key[buttons.BUTTON_B])
