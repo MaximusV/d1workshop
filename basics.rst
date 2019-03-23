@@ -187,6 +187,9 @@ connected.**
 
 Connect the button to ``Pin 13`` (a.k.a D7) and to ground on the right hand side.
 
+.. note::
+    If you have the button with no wires, use D3 ``gpio0`` instead.
+
 .. image:: ./images/button_led.png
     :width: 512px
 

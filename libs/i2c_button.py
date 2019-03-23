@@ -47,8 +47,6 @@ class I2C_BUTTON:
             self.BUTTON_A = 0
             self.BUTTON_B = 0
 
-        print("A:" + self.key[self.BUTTON_A])
-        print("B:" + self.key[self.BUTTON_B])
         return result
 
     def reset(self):

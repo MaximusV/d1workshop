@@ -124,16 +124,14 @@ You will see something like ``XXX.XXX.XXX.XXX`` -- that's the IP address. Enter
 it in the WebREPL's address box at the top like this
 ``ws://XXX.XXX.XXX.XXX:8266/``.
 
-To connect to your board, you first have to start the server on it. You do it
-with this code::
+To connect to your board, you first have to setup the webrepl. You do this
+by running the following code and following the instructions. Please use 'pycon'
+as the password for consistency ::
 
-    import webrepl
-    webrepl.start()
+    import webrepl_setup
 
-Now you can go back to the browser and click "connect".  On the first
-connection, you will be asked to setup a password -- later you will use that
-password to connect to your board.
-
+You might have to physically reconnect the board to get the webREPL running.
+Now you can go back to the browser and click "connect".
 
 Filesystem
 ==========
@@ -207,15 +205,14 @@ web services. The easiest way is to just do a HTTP request -- what your web
 browser does to get the content of web pages::
 
     import urequests
-    r = urequests.get("http://duckduckgo.com/?q=micropython&format=json").json()
+    r = urequests.get("http://harsh-enough.com")
     print(r)
-    print(r['AbstractText'])
 
 You can use that to get information from websites, such as weather forecasts::
 
     import json
     import urequests
-    r = urequests.get("http://api.openweathermap.org/data/2.5/weather?q=Zurich&appid=XXX").json()
+    r = urequests.get("http://api.openweathermap.org/data/2.5/weather?q=Limerick&appid=XXX").json()
     print(r["weather"][0]["description"])
     print(r["main"]["temp"] - 273.15)
 
@@ -223,3 +220,27 @@ It's also possible to make more advanced requests, adding special headers to
 them, changing the HTTP method and so on. However, keep in mind that our board
 has very little memory for storing the answer, and you can easily get a
 ``MemoryError``.
+
+
+OLED Shield Buttons
+===================
+The OLED shield has two buttons at the bottom which we can use to interact with
+the screen to create menus etc. These buttons are controlled over I2C (for
+version 2.1.0 of the shield, version 2.0.0 just has simple pins) which means
+the shield only needs 2 pins to control both. However, this means that you need
+a driver to interact with the buttons.
+
+Let's upload the driver as a file through the WebREPL. Copy the contents of the
+file from https://github.com/MaximusV/d1workshop/raw/master/libs/i2c_button.py
+into a file locally and save it. Upload the file through the WebREPL as described
+earlier. Then you should be able to use the driver liekke so::
+
+    from i2c_button import I2C_BUTTON
+    from machine import Pin, I2C
+
+    i2c = I2C(-1, Pin(5), Pin(4))
+    buttons = I2C_BUTTON(i2c)
+    buttons.get()
+
+    print("A:" + buttons.key[buttons.BUTTON_A])
+    print("B:" + buttons.key[buttons.BUTTON_B])
