@@ -11,13 +11,13 @@ To participate in the workshop, you will need the following:
     UBS2TTL chip.
   * A micro-USB cable with data lines that fits your USB port.
   * You will need a terminal application installed. For Linux and Mac you can
-    use ``screen``, which is installed by default. For Windows we recommend
-    `PuTTy`_ or `CoolTerm`_.
+    use ``screen``, which is usually installed by default. For Windows we recommend
+    `PuTTy`_.
   * Please note that the workshop will be in English.
 
-.. _drivers: http://www.wemos.cc/downloads/
-.. _PuTTy: http://www.chiark.greenend.org.uk/~sgtatham/putty/download.html
-.. _CoolTerm: http://freeware.the-meiers.org/
+.. _drivers: https://sparks.gogo.co.nz/ch340.html/
+.. _PuTTy: https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html
+
 
 In addition, at the workshop, you will receive:
   * WeMos D1 Mini development board with ESP8266 on it,
@@ -28,7 +28,7 @@ In addition, at the workshop, you will receive:
   * LDR light sensor (sharing is caring)
 
 The firmware that is flashed on the boards is also available at
-https://github.com/MaximusV/d1workshop/raw/master/libs/firmware-combined.bin
+https://github.com/MaximusV/d1workshop/blob/master/libs/firmware-combined.bin
 
 
 Notes on Handling
@@ -121,8 +121,8 @@ On MacOS::
     screen /dev/tty.SLAB_USBtoUART 115200
 
 On Mac you might find the name is something other than '.SLAB_USBtoUART' so just
-disconnect the board, do `ls /dev/tty*`, reconnect the board and `ls` again to
-spot the difference.
+disconnect the board, do `ls /dev/tty*` to list tty devices on the filesystem.
+Reconnect the board and do the `ls /dev/tty*` again to spot the difference.
 
 You should get a blank screen and if you hit enter a few times, you should see
 the usual python REPL prompt '>>>'. You might see some gibberish characters or
@@ -133,13 +133,27 @@ connection. To exit screen, press ctrl+A and then capital K.
 Windows
 -------
 
-For the serial interface to appear in your system, you will need to install the
-drivers_ for CH340. Once you have that, you can use either Hyper Terminal,
-PuTTy or CoolTerm to connect to it, following this guide_.
+.. note::
+    When I tested this recently I found that Windows 7 and 10 automatically
+    installed the right drivers so connect the board and follow steps below about
+    using ``mode`` in CMD to list the devices. If the device doesn't appear, then
+    you may need to install the drivers manually as described.
+
+For the serial interface to appear in your system, you may need to install the
+drivers_ for CH340. It may be necessary to reboot to load the drivers properly.
+Once you have that, you can use either Hyper Terminal or PuTTy to
+connect to it.
+
+I'd recommend using Putty which is described in the following guide_. To figure
+out what COM port the device is on, open a CMD window and run the ``mode``
+command to list all controllable attributes of the console (CON) and more
+importantly, the available COM devices. Run it once with the board disconnected
+and then again having connected it to find the device that appeared.
 
 The parameters for the connection are: 115200 baud rate, 8 data bits, no
 parity, 1 stop bit, no flow control.
 
+.. _guide: http://techawarey.com/windows/serial-port-communication-in-windows-7-using-hyper-terminal-and-putty/
 
 Hello world!
 ------------
@@ -157,8 +171,84 @@ It's traditional to start with a "Hello world!" program, so type this and press
 If you see "Hello world!" displayed in the next line, then congratulations, you
 got it working.
 
-.. _guide: https://techawarey.wordpress.com/tag/serial-port-communication-in-windows-7-using-hyper-terminal-and-putty/
+Python Basics
+-------------
+If this is your first time ever using Python, this section will run over some of
+the main things to know for getting started. Remember, Micropython is just an
+implementation of the Python language interface so for basic behaviour
+everything is the same as regular Python here.
 
+Variables
+^^^^^^^^^
+
+Python is a dynamically typed language which means you don't have to declare the
+type of variables (unlike statically typed languages like C and Java)::
+
+    x = 1
+    y = "string"
+    z = []
+
+    type(x)
+    type(y)
+
+You can change the type of a variable at any time, you don't have to stick to
+the original type::
+
+    x = 1
+    x = "x is now a string!"
+    type(x)
+
+This may seem weird if you're used to statically typed languages and it does
+sometimes lead to subtle bugs but in general it is rarely a problem. The ``type``
+builtin function used to check the types here is just for illustation, it is very
+rarely needed when writing Python in general.
+
+Whitespace Delimited
+^^^^^^^^^^^^^^^^^^^^
+
+Python is whitespace de-limited which means that the whitespaces in the files
+are used for flow control between blocks, loops, functions etc. In most other
+popular languages, the curly brace chars ``{}`` are used as delimiters but you
+also generally indent codes by convention for ease of reading. Python chose to
+remove the braces as they are redundant if you are indenting blocks anyway.
+
+It is important that you use whitespace OR tabs for indentation but not both.
+If you're using an editor the easiest thing is to set tabs to use whitespaces.
+The Micropython REPL handes indentation automatically for you. As a rule, whereever
+you see the colon character, ``:``, the next line must be indented. This is usually
+applies to class and function definitions, conditional blocks (if/else) and loops::
+
+    def adder(x, y):
+        return x + y
+
+    result = adder(1, 3)
+    print("Result is {}".format(result))
+
+    test = False
+    if test is True:
+        print("yes")
+    else:
+        print("no")
+
+Loops
+^^^^^
+
+Loops in Python are fairly intuitive::
+
+    # lists can contain multiple types!
+    l = [0, 1, 3, "cat", "dog"]
+
+    for item in l:
+        print(item)
+
+    for i in range(0, 10):
+        print(i)
+
+    from time import sleep
+    while True:
+        # loop forever! ctrl-c to exit
+        print("Looping..")
+        sleep(1)
 
 Official Documentation and Support
 ==================================

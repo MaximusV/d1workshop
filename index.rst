@@ -3,7 +3,7 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to this Introduction to Micropython Workshop at Pycon Limerick!
+Welcome to this Introduction to Micropython Workshop!
 =======================================================================
 
 .. note::
@@ -11,7 +11,7 @@ Welcome to this Introduction to Micropython Workshop at Pycon Limerick!
     <https://bitbucket.org/thesheep/d1workshop/overview>`_ shared under an
     `Attribution-ShareAlike license <https://creativecommons.org/licenses/by-sa/4.0/>`_.
     The main adaptations were to reorganise the content around the specific
-    hardware available in this workshop session.
+    hardware available in this workshop session and misc fixes/updates.
 
 Contents:
 
