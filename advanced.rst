@@ -196,6 +196,7 @@ And then you can use it to copy files to your board::
     Make sure that your console is discobbected while you use ampy, otherwise
     you may get a cryptic error about it not having the access rights.
 
+
 OLED Shield Buttons
 ===================
 The OLED shield has two buttons at the bottom which we can use to interact with
@@ -222,3 +223,13 @@ earlier. Then you should be able to use the driver like so::
         buttons.get()
         print("A:" + buttons.key[buttons.BUTTON_A])
         print("B:" + buttons.key[buttons.BUTTON_B])
+
+
+That's all, folks!
+==================
+
+You've reached the end of the content of the workshop for now! If there is time
+left then just play around with things, set yourself a task for example:
+
+Can you get the screen to display the temperature and humidity, updating every
+30 seconds?
