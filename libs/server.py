@@ -1,3 +1,4 @@
+import asyncio
 import sqlite3
 
 from aiohttp import web
@@ -25,6 +26,22 @@ async def score(request):
 #except sqlite3.IntegrityError:
 #print("couldn't add Joe twice")
 
-app = web.Application()
-app.add_routes(routes)
-web.run_app(app)
+async def start_app():
+    app = web.Application()
+    app.add_routes(routes)
+    # web.run_app(app)
+
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, 'localhost', 8080)
+    await site.start()
+    return runner, site
+
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    runner, site = loop.run_until_complete(start_app())
+    try:
+        loop.run_forever()
+    except KeyboardInterrupt:
+        loop.run_until_complete(runner.cleanup())
