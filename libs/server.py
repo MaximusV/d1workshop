@@ -5,14 +5,14 @@ from aiohttp import web
 
 DB_NAME = "high_score.db"
 GET_SQL = "SELECT rowid, name, score FROM Score WHERE name=?"
-
+INSERT_SQL = "INSERT INTO Score (name, score) VALUES (?,?)"
 routes = web.RouteTableDef()
 
 @routes.get('/')
 async def hello(request):
     return web.Response(text="Hello, world")
 
-@routes.get('/{name}')
+@routes.get('/user/{name}')
 async def score(request):
     user_info = None
     conn = sqlite3.connect(DB_NAME)
@@ -21,7 +21,30 @@ async def score(request):
         c = conn.cursor()
         c.execute(GET_SQL, (request.match_info['name'],))
         user_info = c.fetchone()
-    return web.Response(text="User: {}".format(user_info))
+    if user_info:
+        return web.Response(text="User: {}".format(user_info))
+    else:
+        raise web.HTTPNotFound(body="No such user")
+
+@routes.post('/user/{name}')
+async def score(request):
+    req_data = request.json()
+    score = req_data['score']
+    conn = sqlite3.connect(DB_NAME)
+    try:
+        with conn:
+            c = conn.cursor()
+            c.execute(INSERT_SQL, (request.match_info['name'],
+                                   score)
+                                   )
+            user_info = c.fetchone()
+    except sqlite3.IntegrityError:
+        raise web.HTTPAccepted()
+    if user_info:
+        return web.Response(text="User: {}".format(user_info))
+    else:
+        raise web.HTTPNotFound(body="No such user")
+
 
 #except sqlite3.IntegrityError:
 #print("couldn't add Joe twice")

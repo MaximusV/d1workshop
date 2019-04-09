@@ -71,6 +71,7 @@ to which you can connect, and it can also connect to the Internet.
 To configure it as an access point, run code like this (use your own name and password)::
 
     import network
+    # AP_IF stands for Access Point Interface
     ap = network.WLAN(network.AP_IF)
     ap.active(True)
     ap.config(essid="network-name", authmode=network.AUTH_WPA_WPA2_PSK, password="abcdabcdabcd")
@@ -79,6 +80,7 @@ To scan for available networks (and also get additional information about their
 signal strength and details), use::
 
     import network
+    # STA_IF stands for Standard Interface
     sta = network.WLAN(network.STA_IF)
     sta.active(True)
     print(sta.scan())
@@ -88,15 +90,94 @@ To connect to an existing network, use::
     import network
     sta = network.WLAN(network.STA_IF)
     sta.active(True)
-    # Don't call this with a non-existent network or it gets a bit upset..
-    # sta.connect("network-name", "password")
+    # Don't call this with a non-existent network
+    # sta.connect("micropi", "pyconlimerick")
 
-Once the board connects to a network, it will remember it and reconnect every
-time. To get details about connection, use::
+Once the board connects to a network, it will remember it and reconnect after
+every restart. To get details about connection, use::
 
     sta.ifconfig()
     sta.status()
     sta.isconnected()
+
+.. note::
+    If you accidentally input a bad WiFi ssid or password, the device will get
+    stuck trying to connect to it and will spam network debug output to the
+    terminal. You can still actually type code despite this so you just need to
+    disable the interface by copying and pasting the following code::
+
+        import network
+        sta = network.WLAN(network.STA_IF)
+        sta.active(False)
+
+HTTP Requests
+=============
+
+Once you are connected to a network, you can talk to servers and interact with
+web services. The easiest example is to do a HTTP request to a simple webserver.
+After the last section, you should be connected to a network, probably the 'micropi'
+network hosted for the wokshop. Make sure the AP network is disabled now because
+it will conflict with the 'micropi' network::
+
+    import network
+    ap = network.WLAN(network.AP_IF)
+    ap.active(False)
+
+Let's define a convenient function for making a HTTP request. This function is
+intentionally quite low level, there are of course libraries that provide a
+more simple inteface but this nicely demonstrates what a HTTP request is. When
+you open a website in your browser, the same sequence of calls in made within
+the browser engine.::
+
+    def http_req(host, path, verb="GET", json_data=""):
+        # this call resolves the DNS name into an IP address
+        addr = socket.getaddrinfo(host, 80)[0][-1]
+        # this instantiates a socket to use.
+        s = socket.socket()
+        s.connect(addr)
+
+        if verb == "GET":
+            req = '{} /{} HTTP/1.0\r\nHost: {}\r\n\r\n'
+            # send the formatted HTTP 1.0 request
+            s.send(bytes(req.format(verb, path, host), 'utf8'))
+        else:
+            req = '{} /{} HTTP/1.0\r\nHost: {}\r\nContent-Type:application/json\r\n{}\r\n'
+            s.send(bytes(req.format(verb, path, host, json_data), 'utf8'))
+
+        # read the response data from the socket and print it out.
+        while True:
+            data = s.recv(100)
+            if data:
+                print(str(data, 'utf8'), end='')
+            else:
+                break
+        s.close()
+
+Now to make a request::
+
+    # This is the IP address of the Raspberry Pi server. If you're using another
+    # network, try putting a website address like 'www.harsh-enough.com' instead.
+    http_req("192.168.4.1", "")
+
+    # the webserver also exposes an endpoint to GET a user's score.
+    http_req("192.168.4.1", "user/test")
+
+    # if we try to get a user that doesn't exists, we get a 404 HTTP error:
+    http_req("192.168.4.1", "user/coolboi360")
+
+    # we can use the POST verb to create or update a user
+    import json
+    data = json.dumps({"score": 10})
+    # come up with a username to create and put it in the path
+    name = "example"
+    http_req("192.168.4.1", "user/" + name, "POST", data)
+
+    # now let's get that user data to check that it was created
+    http_req("192.168.4.1", "user/" + name)
+
+It's also possible to make more advanced requests, adding special headers to
+them etc. However, keep in mind that our board has very little memory for
+storing the answer, and you can easily get a ``MemoryError``.
 
 
 WebREPL
