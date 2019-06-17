@@ -19,8 +19,8 @@ Contents:
    :maxdepth: 2
 
    setup.rst
-   basics.rst
-   advanced.rst
+   part1.rst
+   part2.rst
    shields.rst
    extra.rst
 

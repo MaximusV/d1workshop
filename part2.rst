@@ -1,5 +1,5 @@
-Advanced
-********
+Part 2
+******
 
 Communication Protocols
 =======================
@@ -22,7 +22,7 @@ Temperature and Humidity
 ========================
 
 The SHT30 sensor shield provides an accurate temperature and humidity sensor
-which communicates over the I2C protocol, the same as the OLED shield. This
+which communicates over the I²C protocol, the same as the OLED shield. This
 only needs two pins aside from ground and power; a clock pin (SCL) and a data
 pin (SDA). Multiple devices can use the same pins by having a different address
 on the bus (more on this later). A library for controlling the SHT30 has been
@@ -33,7 +33,7 @@ built into the firmware already::
     temperature, humidity = sensor.measure()
 
 Note that another cheaper and less accurate sensor is often used for this
-purpose as well, the DHT11/12. These are described in the 'extra' section for
+purpose as well, the DHT11/22. These are described in the 'extra' section for
 reference.
 
 OLED
@@ -54,13 +54,18 @@ You can control the display using the ``ssd1306`` library::
     from machine import I2C, Pin
     i2c = I2C(-1, Pin(5), Pin(4))
     display = ssd1306.SSD1306_I2C(64, 48, i2c)
+
     display.fill(0)
     display.text("Hello", 0, 0)
     display.text("world!", 0, 8)
     display.pixel(20, 20, 1)
+    # You have to call show to actually display your changes.
     display.show()
 
-
+The display driver "implements" the `Framebuffer interface <https://docs.micropython.org/en/latest/library/framebuf.html#class-framebuffer>`_
+so you can use the methods documented on the linked page. Framebuf provides a
+common interface for display drivers so that you can use the same drawing code
+with multiple different hardware screens. This is a common concept used in programming.
 
 Network
 =======
@@ -68,16 +73,10 @@ Network
 The ESP8266 has wireless networking support. It can act as a WiFi access point
 to which you can connect, and it can also connect to the Internet.
 
-To configure it as an access point, run code like this (use your own name and password)::
-
-    import network
-    # AP_IF stands for Access Point Interface
-    ap = network.WLAN(network.AP_IF)
-    ap.active(True)
-    ap.config(essid="network-name", authmode=network.AUTH_WPA_WPA2_PSK, password="abcdabcdabcd")
-
-To scan for available networks (and also get additional information about their
-signal strength and details), use::
+First let's try set it up with the standard interface and connect to an existing
+network. We'll try the Access Point in the WebREPL section later. To scan for
+available networks (and also get additional information about their signal
+strength and details), use::
 
     import network
     # STA_IF stands for Standard Interface
@@ -90,8 +89,7 @@ To connect to an existing network, use::
     import network
     sta = network.WLAN(network.STA_IF)
     sta.active(True)
-    # Don't call this with a non-existent network
-    # sta.connect("micropi", "pyconlimerick")
+    sta.connect("micropi", "pyladies")
 
 Once the board connects to a network, it will remember it and reconnect after
 every restart. To get details about connection, use::
@@ -100,15 +98,6 @@ every restart. To get details about connection, use::
     sta.status()
     sta.isconnected()
 
-.. note::
-    If you accidentally input a bad WiFi ssid or password, the device will get
-    stuck trying to connect to it and will spam network debug output to the
-    terminal. You can still actually type code despite this so you just need to
-    disable the interface by copying and pasting the following code::
-
-        import network
-        sta = network.WLAN(network.STA_IF)
-        sta.active(False)
 
 HTTP Requests
 =============
@@ -116,69 +105,75 @@ HTTP Requests
 Once you are connected to a network, you can talk to servers and interact with
 web services. The easiest example is to do a HTTP request to a simple webserver.
 After the last section, you should be connected to a network, probably the 'micropi'
-network hosted for the wokshop. Make sure the AP network is disabled now because
+network hosted for the workshop. Make sure the AP network is disabled now because
 it will conflict with the 'micropi' network::
 
     import network
     ap = network.WLAN(network.AP_IF)
     ap.active(False)
 
-Let's define a convenient function for making a HTTP request. This function is
-intentionally quite low level, there are of course libraries that provide a
-more simple inteface but this nicely demonstrates what a HTTP request is. When
-you open a website in your browser, the same sequence of calls in made within
-the browser engine.::
+urequests Library
+-----------------
 
-    def http_req(host, path, verb="GET", json_data=""):
-        # this call resolves the DNS name into an IP address
-        addr = socket.getaddrinfo(host, 80)[0][-1]
-        # this instantiates a socket to use.
-        s = socket.socket()
-        s.connect(addr)
+You might be familiar with the popular `requests` python library for making HTTP
+requests, it defines a much simpler interface than the builtin standard libraries
+for HTTP and is pretty much the de facto standard. There is a micropython version
+that implements the basic interface which is very nice for simple requests. This
+is included in the build on the board so let's try that::
 
-        if verb == "GET":
-            req = '{} /{} HTTP/1.0\r\nHost: {}\r\n\r\n'
-            # send the formatted HTTP 1.0 request
-            s.send(bytes(req.format(verb, path, host), 'utf8'))
-        else:
-            req = '{} /{} HTTP/1.0\r\nHost: {}\r\nContent-Type:application/json\r\n{}\r\n'
-            s.send(bytes(req.format(verb, path, host, json_data), 'utf8'))
+    # we can use this import alias so that the code
+    # could be portable with standard python
+    import urequests as requests
 
-        # read the response data from the socket and print it out.
-        while True:
-            data = s.recv(100)
-            if data:
-                print(str(data, 'utf8'), end='')
-            else:
-                break
-        s.close()
+    # This is the IP address of the Pi serving the 'micropi' network
+    resp = requests.get("http://192.168.4.1")
+    resp.status_code
+    resp.text
 
-Now to make a request::
+`HTTP status-codes <https://www.w3schools.com/tags/ref_httpmessages.asp>`_ tell the client whether the request was successful or some
+kind of error was encountered. As you've just seen, 200 means success. Read more
+about error codes from the link provided. The server provides a ``/user`` endpoint
+for creating, updating or viewing a score value for a user. If we try to query a user that
+doesn't exist, we should get a 404::
 
-    # This is the IP address of the Raspberry Pi server. If you're using another
-    # network, try putting a website address like 'www.harsh-enough.com' instead.
-    http_req("192.168.4.1", "")
+    import urequests as requests
+    resp = requests.get("http://192.168.4.1/user/abcd")
+    resp.status_code
 
-    # the webserver also exposes an endpoint to GET a user's score.
-    http_req("192.168.4.1", "user/test")
+`HTTP verbs <https://www.w3schools.com/tags/ref_httpmethods.asp>`_ like 'GET', 'POST', 'DELETE' are used to distinguish between requests
+that are purely informational e.g GET and requests that expect the server to make
+a change like saving some form data e.g POST. By convention, a GET request is
+expected to be 'safe' in that it won't change or delete data. Let's try PUT
+some data to the example server to create a score entry for a user::
 
-    # if we try to get a user that doesn't exists, we get a 404 HTTP error:
-    http_req("192.168.4.1", "user/coolboi360")
-
-    # we can use the POST verb to create or update a user
+    import urequests as requests
     import json
+
     data = json.dumps({"score": 10})
-    # come up with a username to create and put it in the path
-    name = "example"
-    http_req("192.168.4.1", "user/" + name, "POST", data)
+    # come up with a username yourself to create and put it in the path
+    name = ""
+    resp = requests.put("http://192.168.4.1/user/" + name, data=data)
+    resp.status_code
+    resp.text
+    # What happens if you make the same request again?
 
-    # now let's get that user data to check that it was created
-    http_req("192.168.4.1", "user/" + name)
+Now let's say our user got a new high score and we want to update their entry. We
+should use the POST method for this, as the PUT method doesn't allow us to change
+existing users::
 
-It's also possible to make more advanced requests, adding special headers to
-them etc. However, keep in mind that our board has very little memory for
-storing the answer, and you can easily get a ``MemoryError``.
+    import urequests as requests
+    import json
 
+    data = json.dumps({"score": 25})
+    name = "" # same as your username from the last example.
+    resp = requests.post("http://192.168.4.1/user/" + name, data=data)
+    resp.status_code
+    resp.text
+
+Now you should have an idea of how HTTP web applications work and see how online
+game services could be implemented! The `server code <https://github.com/MaximusV/d1workshop/blob/master/libs/server.py>`_
+might be interesting to read through but it is just a quick example and may not
+make a lot of sense.
 
 WebREPL
 =======
@@ -193,26 +188,34 @@ Get the file from https://github.com/micropython/webrepl/archive/master.zip and
 unpack it somewhere on your computer, then click on the ``webrepl.html`` file
 to open it in the browser.
 
+
+
 In order to connect to your board, you have to know its address. If the board
-works in access point mode, it uses the default address. If it's connected to
-WiFi, you can check it with this code::
+works in access point mode, it uses the default address. To configure it as an
+access point, run code like this (use your own name and password)::
 
     import network
-    sta = network.WLAN(network.STA_IF)
-    print(sta.ifconfig())
+    # AP_IF stands for Access Point Interface
+    ap = network.WLAN(network.AP_IF)
+    ap.active(True)
+    ap.config(essid="network-name", authmode=network.AUTH_WPA_WPA2_PSK, password="abcdabcdabcd")
+    print(ap.ifconfig())
 
-You will see something like ``XXX.XXX.XXX.XXX`` -- that's the IP address. Enter
-it in the WebREPL's address box at the top like this
+For either interface you can check the connection details with the ``ifconfig()``
+function. You will see a number like ``XXX.XXX.XXX.XXX`` -- that's the IP address
+(probably 192.168.4.1 which is a standard address for Access Point networks).
+Enter this in the WebREPL's address box at the top like this
 ``ws://XXX.XXX.XXX.XXX:8266/``.
 
 To connect to your board, you first have to setup the webrepl. You do this
-by running the following code and following the instructions. Please use 'pycon'
+by running the following code and following the instructions. Please use 'pyladies'
 as the password for consistency ::
 
     import webrepl_setup
 
-You might have to physically reconnect the board to get the webREPL running.
-Now you can go back to the browser and click "connect".
+You have to turn off and on the board to get the webREPL running after first setup
+despite what it says about rebooting itself. Now you can go back to the browser
+and click "connect".
 
 Filesystem
 ==========
@@ -227,10 +230,11 @@ You can see the list of files in that storage with this code::
     import os
     print(os.listdir())
 
-You should see something like ``['boot.py']`` -- that's a list with just one
-file name in it. ``boot.py`` and later ``main.py`` are two special files that
-are executed when the board starts. ``boot.py`` is for configuration, and you
-can put your own code in ``main.py``.
+You should see something like ``[]`` or ``['example.py']`` -- that's a list with
+just one file name in it, the example we created in the Setup section.
+Note that ``boot.py`` and later ``main.py`` are two special filenames that
+are executed automatically when the board starts. ``boot.py`` is for configuration,
+and you can put your own app code in ``main.py``.
 
 You can create, write to and read from files like you would with normal Python::
 
@@ -247,7 +251,8 @@ files on it.
 Uploading Files
 ===============
 
-You can use the WebREPL to upload files to the board from your computer. To do
+You can use the WebREPL to upload files to the board from your computer. Either
+with the web interface or else with the Command Line tool provided. To do
 that, you need to open a terminal in the directory where you unpacked the
 WebREPL files, and run the command:
 

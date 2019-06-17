@@ -288,3 +288,47 @@ It's also possible to make more advanced requests, adding special headers to
 them, changing the HTTP method and so on. However, keep in mind that our board
 has very little memory for storing the answer, and you can easily get a
 ``MemoryError``.
+
+
+
+Low Level HTTP request
+----------------------
+
+Let's define a convenient function for making a HTTP request. This function is
+intentionally quite low level, there are of course libraries that provide a
+more simple inteface but this nicely demonstrates what a HTTP request is. When
+you open a website in your browser, the same sequence of calls in made within
+the browser engine.::
+
+    def http_req(host, path, verb="GET", json_data=""):
+        # this call resolves the DNS name into an IP address
+        addr = socket.getaddrinfo(host, 80)[0][-1]
+        # this instantiates a socket to use.
+        s = socket.socket()
+        s.connect(addr)
+
+        if verb == "GET":
+            req = '{} /{} HTTP/1.0\r\nHost: {}\r\n\r\n'
+            # send the formatted HTTP 1.0 request
+            s.send(bytes(req.format(verb, path, host), 'utf8'))
+        else:
+            req = '{} /{} HTTP/1.0\r\nHost: {}\r\nContent-Type:application/json\r\n{}\r\n'
+            s.send(bytes(req.format(verb, path, host, json_data), 'utf8'))
+
+        # read the response data from the socket and print it out.
+        while True:
+            data = s.recv(100)
+            if data:
+                print(str(data, 'utf8'), end='')
+            else:
+                break
+        s.close()
+
+Now to make a request::
+
+    # This is the IP address of the Raspberry Pi server.
+    http_req("192.168.4.1", "")
+
+It's also possible to make more advanced requests, adding special headers to
+them etc. However, keep in mind that our board has very little memory for
+storing the answer, and you can easily get a ``MemoryError``.

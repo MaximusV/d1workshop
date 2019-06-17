@@ -109,26 +109,45 @@ your computer with the micro-USB cable, and access the serial interface that
 appears with a terminal program.
 
 
-Linux and MacOS
----------------
+Linux
+-----
 
-Simply open a terminal and run the following commands. On Linux::
+On Linux you may need to install `screen` but the device drivers should exist
+already::
 
     sudo screen /dev/ttyUSB0 115200
 
-On MacOS::
+You should get see a blank terminal screen and if you press 'enter' you should see
+a line like '>>>' which means you're in the REPL. Skip to the :ref:`hello-world` section.
+
+If you don't get to the REPL, try unplug the cable once and try again. Failing
+that, try another cable.
+
+MacOS
+-----
+
+MacOS should have the device driver installed as well but we have seen varying
+levels of success at previous workshop sessions. Normally connecting with 'screen'
+should look similar to the Linux example but the device name will vary depending
+on the driver::
 
     screen /dev/tty.SLAB_USBtoUART 115200
 
-On Mac you might find the name is something other than '.SLAB_USBtoUART' so just
-disconnect the board, do `ls /dev/tty*` to list tty devices on the filesystem.
-Reconnect the board and do the `ls /dev/tty*` again to spot the difference.
+To check if the device is being detected and the driver is working, do `ls /dev/tty*`
+to list tty devices on the filesystem with the device disconnected first. Reconnect
+the board and do the ```ls /dev/tty*`` again to spot the difference.
 
-You should get a blank screen and if you hit enter a few times, you should see
+This website has some good general troubleshooting instructions for mac serial drivers,
+just ignore any bits specific to their paid drivers https://www.mac-usb-serial.com/docs/support/troubleshooting.html.
+If the default driver doesn't work, then try to follow the instructions here to
+uninstall that and install a new one: https://github.com/MPParsley/ch340g-ch34g-ch34x-mac-os-x-driver
+
+Once the driver is working and you connect with a terminal emulator like screen,
+you should get a blank screen and if you hit enter a few times, you should see
 the usual python REPL prompt '>>>'. You might see some gibberish characters or
 get a SyntaxError when you first connect, that is just the initial serial
-connection. To exit screen, press ctrl+A and then capital K or just disconnect
-the cable.
+connection. To exit screen just disconnect the cable.
+Skip to the :ref:`hello-world` section.
 
 
 Windows
@@ -136,14 +155,16 @@ Windows
 
 .. note::
     When I tested this recently I found that Windows 7 and 10 automatically
-    installed the right drivers so connect the board and follow steps below about
-    using ``mode`` in CMD to list the devices. If the device doesn't appear, then
-    you may need to install the drivers manually as described.
+    installed the right drivers when connected to the internet so connect the
+    board first and see if the autoinstaller pops up in the taskbar. Follow the
+    steps below to see if the device is detected. If the device doesn't appear,
+    then you may need to install the drivers manually as described.
 
 COM port
 ^^^^^^^^
-To figure out what COM port the device is on, open a CMD window and run the
-``mode`` command to list all controllable attributes of the console (CON) and more
+To figure out what COM port the device is on, either open a CMD window and run the
+``mode`` command or open settings and look under Devices and Printers. The
+``mode`` command lists all controllable attributes of the console (CON) and more
 importantly, the available COM devices. Run it once with the board disconnected
 and then again having connected it to find the device that appeared. If there
 was no change or there are no COM devices showing, you need to install the driver
@@ -151,6 +172,7 @@ first.
 
 CH340 drivers
 ^^^^^^^^^^^^^
+
 For the serial interface to appear in your system, you may need to install the
 drivers_ for CH340. It may be necessary to reboot to load the drivers properly.
 Once you have that, you can use either Hyper Terminal or PuTTy to
@@ -167,9 +189,13 @@ or app from the start menu. You should see a screen similar to the image below.
 
 Now select the Serial mode radio button because we want to make a serial type
 connection over USB to the device. Set the Serial Line field to the COM port
-number you got from the ``mode`` command e.g COM3. Set the Speed file to 115200
+number you got from the ``mode`` command e.g COM3. Set the Speed field to 115200
 (the unit is bits per second). This is the Baud Rate i.e the connection speed,
 you can read more about `Serial Communications`_ online if you're interested.
+
+.. note::
+
+    This image is just for reference, * make sure to set the speed to 115200! *
 
 .. image:: ./images/putty2.png
     :width: 512px
@@ -184,6 +210,8 @@ double check the steps above regarding COM ports and the drivers.
 .. _Serial Communications: https://learn.sparkfun.com/tutorials/serial-communication/all
 
 
+.. _hello-world:
+
 Hello world!
 ============
 
@@ -192,7 +220,8 @@ prompt, that looks like this::
 
     >>>
 
-..note::
+.. note::
+
     You may see some gibberish characters or an Error type message like 'could not
     find main.py', that's expected. As long as you can hit "enter" and see the
     ``>>>`` prompt then it's working!
@@ -314,13 +343,14 @@ Modules
 Python comes with loads of useful standard libraries for all sorts of things,
 math, web requests, logging, testing etc. The ``import`` keyword is used to load
 external libraries or modules into memory so we can call their methods etc. So
-remember, when you're importing things, you're really just called functions
-defined elsewhere, it's not some arcane magic. Let's prove this by creating a
-script::
+when you're importing things, you're calling functions defined elsewhere.
+Let's prove this by creating a script::
 
     # use the open function to open a file in write mode 'w'
     new_file = open("example.py", "w")
-    new_file.write("print('Test')")
+    # note that we have to 'escape' the quote characters inside the string with
+    # backslash. Why is that do you think?
+    new_file.write("print(\"Test\")")
     new_file.close()
 
     # when importing we don't specify the .py, the 'module' is just the name
