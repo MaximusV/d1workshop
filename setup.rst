@@ -10,9 +10,8 @@ To participate in the workshop, you will need the following:
   * If it's Windows or Mac OS, we may need to install `drivers`_ for the CH340
     UBS2TTL chip.
   * A micro-USB cable with data lines that fits your USB port.
-  * You will need a terminal application installed. For Linux and Mac you can
-    use ``screen``, which is usually installed by default. For Windows we recommend
-    `PuTTy`_.
+  * You will need Python, Pip and a library called pyserial. Instructions for
+    installing these are included in this setup section.
   * Please note that the workshop will be in English.
 
 .. _drivers: https://sparks.gogo.co.nz/ch340.html
@@ -109,13 +108,64 @@ your computer with the micro-USB cable, and access the serial interface that
 appears with a terminal program.
 
 
+General
+=======
+
+We are going to connect to the board using a Python library called Pyserial. This
+way we can use a consistent tool across all platforms with a similar installation
+process. The following sections will give step by step guides for each platform
+but let's go over the steps at a high level now.
+
+First, make sure you have Python installed (any version but Python3 is
+always recommended). Python is installed on Linux and Mac by default but Windows
+users may need to download the `installer`_. For this workshop we're going to use
+the Python interpreter as a cross platform way to run a terminal emulator which
+is how we will interact with MicroPython.
+
+Next we'll ensure you have `pip`_, the Python package manager installed. This is the
+standard Python package installer used for installing libraries and packages that
+are not in the Python standard library. Pip can be included from the Python
+installer on Windows and installed through the usual tools on Mac and Linux
+e.g `homebrew`_ and apt. We will use Pip to install `pyserial`_, a library that
+provides tools for accessing the serial port.
+
+Finally, we may also need to install drivers for the specific serial to USB chip
+that the WeMos board uses (the CH340). On Linux this usually comes in the kernel,
+Windows will generally autodetect/install the drivers and MacOS seems to sometimes
+have it by default.
+
+.. _installer: https://www.python.org/downloads/
+.. _pip: https://pypi.org/project/pip/
+.. _homebrew: https://brew.sh
+.. _pyserial: https://pythonhosted.org/pyserial/pyserial.html#overview
+
 Linux
 -----
 
-On Linux you may need to install `screen` but the device drivers should exist
-already::
+On Linux Python should be installed by default but you may need to install Pip
+if you haven't before::
 
-    sudo screen /dev/ttyUSB0 115200
+
+    sudo apt-get install python-pip
+
+    # If you're familiar with virtual envs, you may want to create one before this step.
+    sudo pip install pyserial
+
+    # Now to check that you've installed pyserial, run the following:
+    python -m serial.tools.list_ports
+
+    /dev/ttyS4
+    1 ports found
+
+    # Next connect the USB cable to the WeMos D1 and run it again:
+    python -m serial.tools.list_ports
+
+    /dev/ttyS4
+    /dev/ttyUSB0
+    2 ports found
+
+    # The new port that appeared is the one we should connect to.
+    python -m serial.tools.miniterm /dev/ttyUSB0 115200
 
 You should get see a blank terminal screen and if you press 'enter' you should see
 a line like '>>>' which means you're in the REPL. Skip to the :ref:`hello-world` section.
@@ -152,6 +202,10 @@ Skip to the :ref:`hello-world` section.
 
 Windows
 -------
+
+Run the Python installer and be sure to select the option to install `pip`_
+under the Advanced Options section.
+
 
 .. note::
     When I tested this recently I found that Windows 7 and 10 automatically
@@ -195,9 +249,10 @@ you can read more about `Serial Communications`_ online if you're interested.
 
 .. note::
 
-    This image is just for reference, * make sure to set the speed to 115200! *
+    This image is just for reference, **make sure to set the Serial line to the
+    COM port number you found earlier!**
 
-.. image:: ./images/putty2.png
+.. image:: ./images/putty_3.png
     :width: 512px
 
 You might want to save this connection profile for convenience, enter a name like

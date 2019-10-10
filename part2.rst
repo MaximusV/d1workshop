@@ -13,8 +13,8 @@ that you don't have to care about all the gory details -- you just call
 high-level commands, and the libraries and/or hardware in your board handles it
 all for you.
 
-Among the most popular protocols are UART, I²C and SPI. We are going to have
-examples of each of them, but we are not going to get into details of how they
+Among the most popular protocols are UART, I²C and SPI. We are going to look
+at examples of I²C in particular, but we are not going to get into details of how it
 work internally. It's enough to know that they let you send bytes to the
 device, and receive bytes in response.
 
@@ -42,7 +42,7 @@ OLED
 A small, 64×48 monochrome display. It uses pins ``gpio4`` and ``gpio5`` to talk
 with the board with the I²C protocol. It will conflict with any other shield
 that uses those pins, but doesn't use I²C, like the neopixel shield or the
-relay shield. It can coexist with other shields that use I²C, like the motor
+relay shield. It can coexist with other shields that use I²C, like the SHT30
 shield.
 
 Up to two such displays can be connected at the same time, provided they have
