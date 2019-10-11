@@ -143,7 +143,7 @@ Linux
 -----
 
 On Linux Python should be installed by default but you may need to install Pip
-if you haven't before::
+if you haven't before. Open a terminal to execute these steps::
 
 
     sudo apt-get install python-pip
@@ -176,28 +176,81 @@ that, try another cable.
 MacOS
 -----
 
-MacOS should have the device driver installed as well but we have seen varying
-levels of success at previous workshop sessions. Normally connecting with 'screen'
-should look similar to the Linux example but the device name will vary depending
-on the driver::
+On MacOS Python should be installed by default but you may need to install Pip
+if you haven't before. `homebrew`_ is a useful tool for installing packages on MacOS,
+you should install that first if you don't have it. Then open a terminal to
+execute these steps::
 
-    screen /dev/tty.SLAB_USBtoUART 115200
+    pip install pyserial
 
-To check if the device is being detected and the driver is working, do `ls /dev/tty*`
-to list tty devices on the filesystem with the device disconnected first. Reconnect
-the board and do the ```ls /dev/tty*`` again to spot the difference.
+    # output will look something like this:
+    Collecting pyserial
+    Downloading https://pypi.org/pyserial/3.4/pyserial-3.4-py2.py3-none-any.whl (193kB)
+       |████████████████████████████████| 194kB 225kB/s
+    Installing collected packages: pyserial
+    Successfully installed pyserial-3.4
+
+    # Now to check that you've installed pyserial, run the following to list
+    # available serial ports.
+    python -m serial.tools.list_ports
+
+    # Output will vary depending on your devices but should look similar to this.
+    # There might even be 0 devices, that's ok!
+    /dev/cu.Bluetooth-Incoming-Port
+    /dev/cu.MALS
+    /dev/cu.SOC
+    3 ports found
+
+    # Next connect the USB cable to the WeMos D1 and run it again:
+    python -m serial.tools.list_ports
+
+    /dev/cu.Bluetooth-Incoming-Port
+    /dev/cu.MALS
+    /dev/cu.SOC
+    /dev/cu.usbserial-14430
+    4 ports found
+
+If a new port showed up then that's the MicroPython board and you should be ready
+to go! If there is no change then it probably means the device driver was not
+detected and you have to install it. Follow the instructions for this `Mac Driver`_
+on GitHub.
+
+You may have to disable a security check for this driver and reboot your Mac to
+complete the install process. Sometimes we've seen an alarming message on the
+first boot that says something like 'failed to install operating system' but don't
+worry, just reboot again and it's fine. This is because this is a rather low level
+device driver and MacOS doesn't always recognise the manufacturers signature on
+the driver.
+
+.. _Mac Driver: https://github.com/adrianmihalko/ch340g-ch34g-ch34x-mac-os-x-driver#installation-with-homebrew-cask
+
+Once the driver is installed and you have been able to find the right port, you
+can use the miniterm from pyserial to connect to the device::
+
+    python -m serial.tools.miniterm /dev/cu.usbserial-14430 115200
+    --- Miniterm on /dev/cu.usbserial-14430  115200,8,N,1 ---
+    --- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H ---
+
+    >>>
+
+If you disconnect the cable while connected you might see an error like the following
+but don't worry, that's ok::
+
+    --- exit ---
+    Exception in thread rx:
+    Traceback (most recent call last):
+    File "/usr/local/Cellar/python@2/2.7.16_1/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 801, in __bootstrap_inner
+      self.run()
+    File "/usr/local/Cellar/python@2/2.7.16_1/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 754, in run
+      self.__target(*self.__args, **self.__kwargs)
+    File "/usr/local/lib/python2.7/site-packages/serial/tools/miniterm.py", line 445, in reader
+      data = self.serial.read(self.serial.in_waiting or 1)
+    File "/usr/local/lib/python2.7/site-packages/serial/serialposix.py", line 509, in read
+      raise SerialException('read failed: {}'.format(e))
+    SerialException: read failed: [Errno 6] Device not configured
 
 This website has some good general troubleshooting instructions for mac serial drivers,
 just ignore any bits specific to their paid drivers https://www.mac-usb-serial.com/docs/support/troubleshooting.html.
-If the default driver doesn't work, then try to follow the instructions here to
-uninstall that and install a new one: https://github.com/MPParsley/ch340g-ch34g-ch34x-mac-os-x-driver
-
-Once the driver is working and you connect with a terminal emulator like screen,
-you should get a blank screen and if you hit enter a few times, you should see
-the usual python REPL prompt '>>>'. You might see some gibberish characters or
-get a SyntaxError when you first connect, that is just the initial serial
-connection. To exit screen just disconnect the cable.
-Skip to the :ref:`hello-world` section.
 
 
 Windows

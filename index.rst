@@ -23,7 +23,7 @@ Contents:
    part2.rst
    shields.rst
    extra.rst
-
+   misc.rst
 
 Indices and tables
 ==================
