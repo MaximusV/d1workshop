@@ -218,9 +218,9 @@ on GitHub.
 You may have to disable a security check for this driver and reboot your Mac to
 complete the install process. Sometimes we've seen an alarming message on the
 first boot that says something like 'failed to install operating system' but don't
-worry, just reboot again and it's fine. This is because this is a rather low level
-device driver and MacOS doesn't always recognise the manufacturers signature on
-the driver.
+worry, just reboot again, it's just a really badly written error message. This
+security setting is because this is a low level device driver and MacOS doesn't always
+recognise the manufacturers signature on the driver.
 
 .. _Mac Driver: https://github.com/adrianmihalko/ch340g-ch34g-ch34x-mac-os-x-driver#installation-with-homebrew-cask
 
@@ -256,67 +256,39 @@ just ignore any bits specific to their paid drivers https://www.mac-usb-serial.c
 Windows
 -------
 
-Run the Python installer and be sure to select the option to install `pip`_
-under the Advanced Options section.
-
-
 .. note::
     When I tested this recently I found that Windows 7 and 10 automatically
     installed the right drivers when connected to the internet so connect the
-    board first and see if the autoinstaller pops up in the taskbar. Follow the
-    steps below to see if the device is detected. If the device doesn't appear,
-    then you may need to install the drivers manually as described.
+    board first and see if the autoinstaller pops up in the taskbar. Then follow
+    the steps below to see if the device is detected after the autoinstaller
+    completes. If the device doesn't appear, then you may need to install the
+    drivers manually as described later.
 
-COM port
-^^^^^^^^
-To figure out what COM port the device is on, either open a CMD window and run the
-``mode`` command or open settings and look under Devices and Printers. The
-``mode`` command lists all controllable attributes of the console (CON) and more
-importantly, the available COM devices. Run it once with the board disconnected
-and then again having connected it to find the device that appeared. If there
-was no change or there are no COM devices showing, you need to install the driver
-first.
+    .. image:: ./images/win_python_4.png
+        :width: 200px
 
-CH340 drivers
-^^^^^^^^^^^^^
+Run the Python standard `installer`_ and be sure to check the box to install
+`pip`_ under the Customize Installation section.
 
-For the serial interface to appear in your system, you may need to install the
-drivers_ for CH340. It may be necessary to reboot to load the drivers properly.
-Once you have that, you can use either Hyper Terminal or PuTTy to
-connect to it.
-
-
-PuTTy
-^^^^^
-I'd recommend using Putty which is described in detail here. Run the PuTTy exe
-or app from the start menu. You should see a screen similar to the image below.
-
-.. image:: ./images/putty1.png
+.. image:: ./images/win_python_2.png
     :width: 512px
 
-Now select the Serial mode radio button because we want to make a serial type
-connection over USB to the device. Set the Serial Line field to the COM port
-number you got from the ``mode`` command e.g COM3. Set the Speed field to 115200
-(the unit is bits per second). This is the Baud Rate i.e the connection speed,
-you can read more about `Serial Communications`_ online if you're interested.
+Then open a Command Prompt (open the application bar and search for CMD) where
+we can execute Pip to install Pyserial.
 
-.. note::
-
-    This image is just for reference, **make sure to set the Serial line to the
-    COM port number you found earlier!**
-
-.. image:: ./images/putty_3.png
+.. image:: ./images/win_python_3.png
     :width: 512px
 
-You might want to save this connection profile for convenience, enter a name like
-'micro' into the Saved Sessions field and click the Save button. Next time you
-connect you can just double-click 'micro' in the list and PuTTy will load the
-connection settings. If you have the right COM port and the drivers are working
-a black console type window should pop up, it will be blank initially. If not,
-double check the steps above regarding COM ports and the drivers.
+Then we can run the pyserial list_ports tool to list available serial ports. On
+Windows these are usually named COM<X> where X is a number. Plug in the board
+and run list_ports again, if a new number pops up then that is the one we need
+to connect to using miniterm.
 
-.. _Serial Communications: https://learn.sparkfun.com/tutorials/serial-communication/all
+.. image:: ./images/win_python_5.png
+    :width: 512px
 
+If there was no new port or there are no COM devices showing, you need to install
+the CH340 `drivers`_ first. It may be necessary to reboot to load the drivers properly.
 
 .. _hello-world:
 
@@ -355,7 +327,7 @@ We're currently connected to the Python REPL (Read-Execute-Print-Loop) which is
 a quick and easy way to play around with Python code. If you install and run
 regular Python on your computer, you can also run the REPL. The MicroPython
 REPL has some handy extra features; it will remember the last 8 lines of code, it will
-auto-indent blocks for you, it has a special paste mode ``Ctrl+d`` and it has
+auto-indent blocks for you, it has a special paste mode ``Ctrl+e`` and it has
 Tab completion, meaning it will offer suggestions for available methods on a
 module or instance when you press the Tab key. Try to get used to these as we
 go through the tutorial.
@@ -364,6 +336,13 @@ For actual complex Python programs running as services, the code is written into
 a file with a ``.py`` extension and then executed with the Python interpreter
 (often referred to as Python *scripts* or *modules*). Later in the tutorial we
 will look at putting files onto the devices over the WebREPL.
+
+.. note::
+
+    During the first parts of the workshop, it's a good idea to have some basic
+    text editor like NotePad open so that you can copy/paste in and modify the workshop
+    code easily using the ``Ctrl+e`` paste mode in the MicroPython REPL. For each
+    example you can then try variations on the examples or test out your own ideas.
 
 Variables
 ---------
@@ -400,10 +379,11 @@ also generally indent codes by convention for ease of reading. Python chose to
 remove the braces as they are redundant if you are indenting blocks anyway and
 it makes for much cleaner code to read.
 
-It is important that you use whitespace OR tabs for indentation but not both.
-If you're using an editor the easiest thing is to set tabs to use whitespaces.
-The Micropython REPL handes indentation automatically for you. As a rule, whereever
-you see the colon character, ``:``, the next line must be indented. This is usually
+It is important that you use whitespace OR tabs for indentation but not both. For
+this workshop you must stick with whitespaces. If you're using an editor the
+easiest thing is to set tabs to use whitespaces. The Micropython REPL handes
+indentation automatically for you. As a rule, whereever you see the colon
+character, ``:``, the next line must be indented. This is usually
 applies to class and function definitions, conditional blocks (if/else) and loops::
 
     def adder(x, y):
