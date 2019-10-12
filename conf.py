@@ -46,7 +46,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Micropython on ESP8266 Workshop (Pycon Limerick)'
+project = u'Micropython on ESP8266 Workshop (Pycon Ireland)'
 copyright = u'2016, Radomir Dopieralski'
 
 # The version info for the project you're documenting, acts as replacement for

@@ -188,7 +188,14 @@ Get the file from https://github.com/micropython/webrepl/archive/master.zip and
 unpack it somewhere on your computer, then click on the ``webrepl.html`` file
 to open it in the browser.
 
+.. note::
 
+    We should make sure to disable the other interface, since it is configured
+    with a similar IP and may cause weird conflicts with the AP network::
+
+        import network
+        sta = network.WLAN(network.STA_IF)
+        sta.active(False)
 
 In order to connect to your board, you have to know its address. If the board
 works in access point mode, it uses the default address. To configure it as an

@@ -165,7 +165,7 @@ if you haven't before. Open a terminal to execute these steps::
     2 ports found
 
     # The new port that appeared is the one we should connect to.
-    python -m serial.tools.miniterm /dev/ttyUSB0 115200
+    python -m serial.tools.miniterm --raw /dev/ttyUSB0 115200
 
 You should get see a blank terminal screen and if you press 'enter' you should see
 a line like '>>>' which means you're in the REPL. Skip to the :ref:`hello-world` section.
@@ -227,7 +227,7 @@ recognise the manufacturers signature on the driver.
 Once the driver is installed and you have been able to find the right port, you
 can use the miniterm from pyserial to connect to the device::
 
-    python -m serial.tools.miniterm /dev/cu.usbserial-14430 115200
+    python -m serial.tools.miniterm --raw /dev/cu.usbserial-14430 115200
     --- Miniterm on /dev/cu.usbserial-14430  115200,8,N,1 ---
     --- Quit: Ctrl+] | Menu: Ctrl+T | Help: Ctrl+T followed by Ctrl+H ---
 
@@ -282,7 +282,9 @@ we can execute Pip to install Pyserial.
 Then we can run the pyserial list_ports tool to list available serial ports. On
 Windows these are usually named COM<X> where X is a number. Plug in the board
 and run list_ports again, if a new number pops up then that is the one we need
-to connect to using miniterm.
+to connect to using miniterm. Be sure to pass in the --raw argument like so::
+
+    python -m serial.tools.miniterm --raw COM3 115200
 
 .. image:: ./images/win_python_5.png
     :width: 512px
