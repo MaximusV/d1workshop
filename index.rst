@@ -21,6 +21,7 @@ Contents:
    setup.rst
    part1.rst
    part2.rst
+   part3.rst
    shields.rst
    extra.rst
    misc.rst

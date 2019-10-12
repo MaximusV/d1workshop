@@ -58,7 +58,10 @@ class Ball():
     def draw(self):
         self.display.fill_rect(self.x, self.y, self.width, self.height, 1)
 
-class Breakout():
+    def hit_paddle(self):
+        self.v_y *= -1
+
+class Game():
 
     def __init__(self):
         self.dirty = 0
@@ -71,7 +74,7 @@ class Breakout():
 
         self.blocks = [Block((x*9)+2, (y * 5)+2, self.display)
             for x in range(0, 8)
-            for y in range(0,3)
+            for y in range(0, 3)
             ]
         self.ball = Ball(32, 24, self.display, 2, 2)
         self.paddle = Block(26, 44, self.display)
@@ -94,12 +97,7 @@ class Breakout():
     def game_loop(self):
         while True:
             if self.dirty:
-                self.buttons.get()
-                if self.buttons.BUTTON_A > 0:
-                    self.paddle.move_left()
-                if self.buttons.BUTTON_B > 0:
-                    self.paddle.move_right()
-                self.ball.update()
+                self.update()
                 self.draw()
                 # critical section
                 state = disable_irq()
@@ -115,5 +113,20 @@ class Breakout():
         self.display.show()
 
     def update(self):
+        self.buttons.get()
+        if self.buttons.BUTTON_A > 0:
+            self.paddle.move_left()
+        if self.buttons.BUTTON_B > 0:
+            self.paddle.move_right()
+
+        if self.collision(self.ball, self.paddle):
+            self.ball.hit_paddle()
         self.ball.update()
-        self.draw()
+
+    def collision(self, rect1, rect2):
+    # note this function doesn't use the self parameter so it could be static
+    # or defined outside the Game class if we wanted.
+    return (rect1.x < rect2.x + rect2.width &&
+            rect1.x + rect1.width > rect2.x &&
+            rect1.y < rect2.y + rect2.height &&
+            rect1.y + rect1.height > rect2.y)
