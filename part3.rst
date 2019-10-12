@@ -59,48 +59,51 @@ for the game, constants and so on::
         def draw(self):
             self.display.fill_rect(self.x, self.y, self.width, self.height, 1)
 
-        class Game():
+    class Game():
 
-            def __init__(self):
-                self.dirty = 0
+        def __init__(self):
+            self.dirty = 0
 
-                i2c = I2C(sda=Pin(4), scl=Pin(5))
-                self.display = ssd1306.SSD1306_I2C(64, 48, i2c)
-                self.display.poweron()
+            i2c = I2C(sda=Pin(4), scl=Pin(5))
+            self.display = ssd1306.SSD1306_I2C(64, 48, i2c)
+            self.display.poweron()
 
-                self.buttons = I2C_BUTTON(i2c)
+            self.buttons = I2C_BUTTON(i2c)
 
-                self.blocks = [Block((x*9)+2, (y * 5)+2, self.display)
-                    for x in range(0, 8)
-                    for y in range(0, 3)
-                    ]
-                self.draw()
+            self.blocks = [Block((x*9)+2, (y * 5)+2, self.display)
+                for x in range(0, 8)
+                for y in range(0, 3)
+                ]
+            self.draw()
 
-                self.tim = Timer(-1)
-                self.tim.init(period=UPDATE_PERIOD, mode=Timer.PERIODIC,
-                              callback=self.set_dirty)
+            self.tim = Timer(-1)
+            self.tim.init(period=UPDATE_PERIOD, mode=Timer.PERIODIC,
+                          callback=self.set_dirty)
 
-                self.game_loop()
+            self.game_loop()
 
-            def game_loop(self):
-                  while True:
-                      if self.dirty:
-                          self.update()
-                          self.draw()
-                          # critical section
-                          state = disable_irq()
-                          self.dirty = 0
-                          enable_irq(state)
+        def set_dirty(self):
+            self.dirty =  1
+        
+        def game_loop(self):
+              while True:
+                  if self.dirty:
+                      self.update()
+                      self.draw()
+                      # critical section
+                      state = disable_irq()
+                      self.dirty = 0
+                      enable_irq(state)
 
-            def draw(self):
-                self.display.fill(0)
+        def draw(self):
+            self.display.fill(0)
 
-                for block in self.blocks:
-                    block.draw()
-                self.display.show()
+            for block in self.blocks:
+                block.draw()
+            self.display.show()
 
-            def update(self):
-                pass
+        def update(self):
+            pass
 
 Ok, that's a lot of code! Take some time to read through it and understand as
 much as you can. Don't worry if some of it doesn't make sense now, there are some
