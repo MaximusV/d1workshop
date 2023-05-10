@@ -73,8 +73,7 @@ Network
 The ESP8266 has wireless networking support. It can act as a WiFi access point
 to which you can connect, and it can also connect to the Internet.
 
-First let's try set it up with the standard interface and connect to an existing
-network. We'll try the Access Point in the WebREPL section later. To scan for
+First let's try set it up with the Access Point mode. To scan for
 available networks (and also get additional information about their signal
 strength and details), use::
 
@@ -84,15 +83,25 @@ strength and details), use::
     sta.active(True)
     print(sta.scan())
 
-To connect to an existing network, use::
+You could then connect to any existing network with STA_IF mode and access the internet
+as usual. For the workshop though, we will stick to AP mode. To configure it as an
+access point, run code like this (use your own essid name and password)::
 
     import network
-    sta = network.WLAN(network.STA_IF)
-    sta.active(True)
-    sta.connect("micropi", "pyladies")
+    # AP_IF stands for Access Point Interface
+    ap = network.WLAN(network.AP_IF)
+    ap.active(True)
+    ap.config(essid="network-name", authmode=network.AUTH_WPA_WPA2_PSK, password="abcdabcdabcd")
+    print(ap.ifconfig())
+
+For either interface you can check the connection details with the ``ifconfig()``
+function. You will see a number like ``XXX.XXX.XXX.XXX`` -- that's the IP address
+(probably 192.168.4.1 which is a standard address for Access Point networks).
+Enter this in the WebREPL's address box at the top like this
+``ws://XXX.XXX.XXX.XXX:8266/``.
 
 Once the board connects to a network, it will remember it and reconnect after
-every restart. To get details about connection, use::
+every restart (an esp8226 port specific feature). To get details about connection, use::
 
     sta.ifconfig()
     sta.status()
@@ -104,13 +113,23 @@ HTTP Requests
 
 Once you are connected to a network, you can talk to servers and interact with
 web services. The easiest example is to do a HTTP request to a simple webserver.
-After the last section, you should be connected to a network, probably the 'micropi'
-network hosted for the workshop. Make sure the AP network is disabled now because
-it will conflict with the 'micropi' network::
+After the last section, you should be setup in AP network mode but make sure to
+disable the STA_IF interface since we're net using it::
 
     import network
-    ap = network.WLAN(network.AP_IF)
-    ap.active(False)
+    sta = network.WLAN(network.STA_IF)
+    sta.active(False)
+
+Run the server on your laptop
+=============================
+
+Install the `aiohttp` package on your laptop and download the `server code <https://github.com/MaximusV/d1workshop/blob/master/libs/server.py>`_ from
+the repo::
+
+    $ pip install aiohttp
+    $ # connect your laptop to your AP network and then check what IP it got assigned.
+    $ python server.py
+
 
 urequests Library
 -----------------
@@ -125,8 +144,8 @@ is included in the build on the board so let's try that::
     # could be portable with standard python
     import urequests as requests
 
-    # This is the IP address of the Pi serving the 'micropi' network
-    resp = requests.get("http://192.168.4.1")
+    # This is the IP address of your laptop running the server script.
+    resp = requests.get("http://192.168.4.X:8080")
     resp.status_code
     resp.text
 
@@ -137,7 +156,7 @@ for creating, updating or viewing a score value for a user. If we try to query a
 doesn't exist, we should get a 404::
 
     import urequests as requests
-    resp = requests.get("http://192.168.4.1/user/abcd")
+    resp = requests.get("http://192.168.4.X:8080/user/abcd")
     resp.status_code
 
 `HTTP verbs <https://www.w3schools.com/tags/ref_httpmethods.asp>`_ like 'GET', 'POST', 'DELETE' are used to distinguish between requests
@@ -152,7 +171,7 @@ some data to the example server to create a score entry for a user::
     data = json.dumps({"score": 10})
     # come up with a username yourself to create and put it in the path
     name = ""
-    resp = requests.put("http://192.168.4.1/user/" + name, data=data)
+    resp = requests.put("http://192.168.4.X:8080/user/" + name, data=data)
     resp.status_code
     resp.text
     # What happens if you make the same request again?
@@ -166,7 +185,7 @@ existing users::
 
     data = json.dumps({"score": 25})
     name = "" # same as your username from the last example.
-    resp = requests.post("http://192.168.4.1/user/" + name, data=data)
+    resp = requests.post("http://192.168.4.X:8080/user/" + name, data=data)
     resp.status_code
     resp.text
 
@@ -198,8 +217,8 @@ to open it in the browser.
         sta.active(False)
 
 In order to connect to your board, you have to know its address. If the board
-works in access point mode, it uses the default address. To configure it as an
-access point, run code like this (use your own name and password)::
+works in access point mode, it uses the default address. If you haven't already
+setup the access point network in an earlier section, run code like this (use your own name and password)::
 
     import network
     # AP_IF stands for Access Point Interface
@@ -318,11 +337,11 @@ earlier. Then you should be able to use the driver like so::
         print("B:" + buttons.key[buttons.BUTTON_B])
 
 
-That's all, folks!
-==================
+End of Part 2
+=============
 
-You've reached the end of the content of the workshop for now! If there is time
-left then just play around with things, set yourself a task for example:
+You've reached the end of Part 2! You can move onto Part 3 if you'd like or try
+to play around more with the topics we covered here. Set yourself a task, for example:
 
 Can you get the screen to display the temperature and humidity, updating every
 30 seconds?
